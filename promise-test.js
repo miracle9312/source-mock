@@ -3,6 +3,7 @@
  */
 (function(){
     "use strict";
+    var asap = require('asap/raw');
 
     //声明一个空函数，用于初始化一个没有执行逻辑的promise
     var noop = function(){};
@@ -29,7 +30,7 @@
     function Promise(fn) {
         /*
         * _deferredState：用于指示promise是否添加过deferred
-        * _deferred:延迟对象
+        * _deferred:延迟对象原型是Handler
         * _state:promise执行状态pengind:0,fulfilled:1
         * _value:defered函数执行参数*/
         this._deferredState = 0;
@@ -63,16 +64,20 @@
 
     //分解promise并执行其中的deferred函数
     function resolve(self, newValue){
-        self._state = 1;
-        self._value = newValue;
+        asap(function(){
+            self._state = 1;
+            self._value = newValue;
 
-        //该promise添加过deferred对象
-        if(self._deferredState === 1){
-            var cb = self._state ===1 ? self._deferred.onFulfilled :self._deferred.onRejected;
-            var ret = tryCallOne(cb, self._value);
-            resolve(self._deferred.promise, ret);
-            self._deferred = null;
-        }
+            //该promise添加过deferred对象
+            if(self._deferredState === 1){
+                var cb = self._state ===1 ? self._deferred.onFulfilled :self._deferred.onRejected;
+                var ret = tryCallOne(cb, self._value);
+                resolve(self._deferred.promise, ret);
+                self._deferred = null;
+            }
+
+            return;
+        })
     }
 
     function doResolved(self, fn) {
@@ -83,7 +88,7 @@
         });
     }
 
-    var promiseObj = new Promise(function(resolve, reject){
+    /*var promiseObj = new Promise(function(resolve, reject){
         setTimeout(function(){
             resolve('to then1');
         }, 1000);
@@ -94,6 +99,21 @@
         return 'to then2';
     }).then(function(val){
         console.log(val);// jshint ignore:line
+    });*/
+
+    function timeout() {
+        var promiseObj = new Promise(function(resolve, reject){
+            console.log('promise');
+            resolve();
+        });
+
+        return promiseObj;
+    }
+
+    console.log('io');
+
+    timeout().then(function(){
+        console.log('to then');
     });
 
 })();
