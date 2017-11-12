@@ -29,10 +29,10 @@
     //声明Promise类
     function Promise(fn) {
         /*
-        * _deferredState：用于指示promise是否添加过deferred
-        * _deferred:延迟对象原型是Handler
-        * _state:promise执行状态pengind:0,fulfilled:1
-        * _value:defered函数执行参数*/
+         * _deferredState：用于指示promise是否添加过deferred
+         * _deferred:延迟对象原型是Handler
+         * _state:promise执行状态pengind:0,fulfilled:1
+         * _value:defered函数执行参数*/
         this._deferredState = 0;
         this._deferred = null;
         this._state = 0;
@@ -87,19 +87,6 @@
             //reject code
         });
     }
-
-    /*var promiseObj = new Promise(function(resolve, reject){
-        setTimeout(function(){
-            resolve('to then1');
-        }, 1000);
-    });
-
-    promiseObj.then(function(val){
-        console.log(val);// jshint ignore:line
-        return 'to then2';
-    }).then(function(val){
-        console.log(val);// jshint ignore:line
-    });*/
 
     function timeout() {
         var promiseObj = new Promise(function(resolve, reject){
