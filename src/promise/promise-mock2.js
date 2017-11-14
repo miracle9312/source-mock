@@ -60,10 +60,15 @@
         return res;
     };
 
-    function finale(self, deferred) {
+    function finale(self) {
         if(self._deferredState === 1){
-            handle(self, deferred);
+            handle(self, self._deferred);
             self._deferred = null;
+        }
+        if(self._deferredState === 2){
+            for(var i = 0; i < self._deferred.length; i++ ){
+                handle(self, self._deferred[i]);
+            }
         }
     }
 
@@ -72,9 +77,18 @@
         while (self._state === 3){
             self = self._value;
         }
-        if(self._state === 0 && self._deferredState === 0){//未触发未挂载
-            self._deferredState = 1;
-            self._deferred = deferred;
+        if(self._state === 0){
+            if(self._deferredState === 0){//thepromise.then(fn)
+                self._deferredState = 1;
+                self._deferred = deferred;
+                return;
+            }
+            if(self._deferredState === 1){//thepromise.then(fn1) thepromise.then(fn2)
+                self._deferredState = 2;
+                self._deferred = [self._deferred, deferred]
+                return;
+            }
+            self._deferred.push(deferred);//thepromise.then(fn1) thepromise.then(fn2) thepromise.then(fn3)
             return;
         }
 
@@ -125,14 +139,17 @@
             if(then === self.then && newValue instanceof Promise){//case:resolve(self, Promise obj)
                 self._state = 3;
                 self._value = newValue;
-                finale(self, self._deferred);
+                finale(self);
+                return;
+            }else if(typeof then == 'function'){//case:resolve(obj['then'])
+                doResolved(then.bind(newValue), self);
                 return;
             }
         }
 
         self._state = 1;//onFulFilled
         self._value = newValue;
-        finale(self, self._deferred);
+        finale(self);
     }
 
     function reject(self, newValue) {
@@ -149,22 +166,23 @@
         });
     }
 
-    var st = Date.now();
-    var promise1 = new Promise(function(resolve, reject){
-        /*setTimeout(function(){*/
-        reject(Date.now() - st+'p1 reject');
-        /*}, 3000);*/
-    });
-
-    var promise2 = new Promise(function(resolve, reject){
+    var promiseObj = new Promise(function(resolve, reject){
         setTimeout(function(){
-            console.log(Date.now() - st, 'p2 resolve');
-            resolve(promise1);
+            resolve('test');
         }, 1000);
     });
 
-    promise2.then(null, function(e){
-        console.log(Date.now()-st, e);
+    promiseObj.then(function(val){
+        console.log(val + 'then1');
     });
+
+    promiseObj.then(function(val){
+        console.log(val +' then2')
+    });
+
+    promiseObj.then(function(val){
+        console.log(val +' then3')
+    })
+
 })();
 
