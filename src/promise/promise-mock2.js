@@ -159,14 +159,34 @@
     }
 
     function doResolved(self, fn) {
-        tryCallTwo(fn, function(val){
+        var done = false;
+        var ret = tryCallTwo(fn, function(val){
+            if(done){return;}
+            done = true;
             resolve(self, val);
         },function(val){
+            if(done){return;}
+            done = true;
             reject(self, val);
         });
+        if(!done && ret == IS_ERROR){
+            done = true;
+            reject(self, LAST_ERROR);
+        }
     }
 
     var promiseObj = new Promise(function(resolve, reject){
+        resolve('resolve');
+        reject('reject');
+    });
+
+    promiseObj.then(function(val){
+        console.log(val);
+    }).then(null, function(val){
+        console.log(val);
+    });
+
+    /*var promiseObj = new Promise(function(resolve, reject){
         setTimeout(function(){
             resolve('test');
         }, 1000);
@@ -182,7 +202,7 @@
 
     promiseObj.then(function(val){
         console.log(val +' then3')
-    })
+    })*/
 
 })();
 
