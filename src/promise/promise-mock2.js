@@ -169,40 +169,28 @@
             done = true;
             reject(self, val);
         });
-        if(!done && ret == IS_ERROR){
+        if(!done && ret === IS_ERROR){
             done = true;
             reject(self, LAST_ERROR);
         }
     }
 
-    var promiseObj = new Promise(function(resolve, reject){
-        resolve('resolve');
-        reject('reject');
-    });
-
-    promiseObj.then(function(val){
-        console.log(val);
-    }).then(null, function(val){
-        console.log(val);
-    });
-
-    /*var promiseObj = new Promise(function(resolve, reject){
+    var promise1 = new Promise(function(resolve, reject){
         setTimeout(function(){
-            resolve('test');
-        }, 1000);
+            reject('from promise1')
+        }, 1000)
     });
 
-    promiseObj.then(function(val){
-        console.log(val + 'then1');
+    var promise2 = new Promise(function(resolve, reject){
+        setTimeout(function(){
+            resolve(promise1);
+        }, 3000)
     });
 
-    promiseObj.then(function(val){
-        console.log(val +' then2')
-    });
-
-    promiseObj.then(function(val){
-        console.log(val +' then3')
-    })*/
-
+    promise2.then(function(val){
+        console.log(val, 'to resolve');
+    }, function(val){
+        console.log(val, 'to reject');
+    })
 })();
 
