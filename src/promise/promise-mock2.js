@@ -192,5 +192,7 @@
     }, function(val){
         console.log(val, 'to reject');
     })
+
+    module.exports = Promise;
 })();
 
