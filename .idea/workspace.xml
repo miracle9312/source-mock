@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c31b476f-2ebe-4974-baa9-e125532b8e38" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/promise/es6-extensions.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/promise/es6-extensions.js" afterPath="$PROJECT_DIR$/src/promise/es6-extensions.js" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/promise/promise-mock2.js" afterPath="$PROJECT_DIR$/src/promise/promise-mock2.js" />
     </list>
     <ignored path="source-mock.iws" />
@@ -30,8 +30,8 @@
       <file leaf-file-name="promise-mock2.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/promise/promise-mock2.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="4095">
-              <caret line="195" column="29" selection-start-line="195" selection-start-column="29" selection-end-line="195" selection-end-column="29" />
+            <state relative-caret-position="189">
+              <caret line="9" column="22" selection-start-line="9" selection-start-column="22" selection-end-line="9" selection-end-column="22" />
               <folding />
             </state>
           </provider>
@@ -40,8 +40,8 @@
       <file leaf-file-name="es6-extensions.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/promise/es6-extensions.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="273">
-              <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+            <state relative-caret-position="231">
+              <caret line="91" column="6" selection-start-line="91" selection-start-column="6" selection-end-line="91" selection-end-column="6" />
               <folding>
                 <element signature="e#0#44#0" expanded="false" />
               </folding>
@@ -122,6 +122,7 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
+      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -160,14 +161,13 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="Scratches" />
     </panes>
   </component>
   <component name="PropertiesComponent">
     <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Font" />
     <property name="settings.editor.splitter.proportion" value="0.2" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/promise/es6-extensions.js" />
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="nodejs_interpreter_path" value="E:/studySoftwares/node/node" />
     <property name="js-jscs-nodeInterpreter" value="E:\studySoftwares\node\node.exe" />
@@ -183,7 +183,7 @@
       <recent name="F:\sources\my-test\source-mock" />
     </key>
   </component>
-  <component name="RunManager" selected="Node.js.promise-test1">
+  <component name="RunManager" selected="Node.js.es6">
     <configuration default="true" type="DartCommandLineRunConfigurationType" factoryName="Dart Command Line Application">
       <method />
     </configuration>
@@ -244,6 +244,13 @@
       </EXTENSION>
       <method />
     </configuration>
+    <configuration default="false" name="es6" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="project" path-to-js-file="src/promise/es6-extensions.js" working-dir="$PROJECT_DIR$">
+      <profiling v8-profiler-path="" />
+      <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSProfilingRunConfigurationExtension">
+        <profiling v8-profiler-path="" />
+      </EXTENSION>
+      <method />
+    </configuration>
     <configuration default="false" name="promise-test2" type="NodeJSConfigurationType" factoryName="Node.js" path-to-node="project" path-to-js-file="src/promise/promise-mock2.js" working-dir="$PROJECT_DIR$">
       <profiling v8-profiler-path="" />
       <EXTENSION ID="com.jetbrains.nodejs.run.NodeJSProfilingRunConfigurationExtension">
@@ -251,9 +258,10 @@
       </EXTENSION>
       <method />
     </configuration>
-    <list size="2">
+    <list size="3">
       <item index="0" class="java.lang.String" itemvalue="Node.js.promise-test1" />
-      <item index="1" class="java.lang.String" itemvalue="Node.js.promise-test2" />
+      <item index="1" class="java.lang.String" itemvalue="Node.js.es6" />
+      <item index="2" class="java.lang.String" itemvalue="Node.js.promise-test2" />
     </list>
   </component>
   <component name="ShelveChangesManager" show_recycled="false">
@@ -284,12 +292,13 @@
       <workItem from="1511058390609" duration="6945000" />
       <workItem from="1511430539777" duration="2517000" />
       <workItem from="1511492747643" duration="4491000" />
-      <workItem from="1511577042454" duration="657000" />
+      <workItem from="1511577042454" duration="1251000" />
+      <workItem from="1511744183894" duration="7603000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="70776000" />
+    <option name="totallyTimeSpent" value="78973000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1432" y="100" width="1296" height="776" extended-state="6" />
@@ -303,7 +312,7 @@
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.38181818" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="true" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33006993" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.3284553" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
   </component>
   <component name="Vcs.Log.UiProperties">
@@ -319,11 +328,37 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="36" />
+      <option name="time" value="40" />
     </breakpoint-manager>
     <watches-manager />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/src/promise/promise-mock2.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="4095">
+          <caret line="195" column="29" selection-start-line="195" selection-start-column="29" selection-end-line="195" selection-end-column="29" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/promise/es6-extensions.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#0#44#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/promise/promise-mock1.js">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="2205">
+          <caret line="105" column="5" selection-start-line="105" selection-start-column="5" selection-end-line="105" selection-end-column="5" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/promise/promise-mock2.js">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="4095">
@@ -535,16 +570,16 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/promise/promise-mock2.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="4095">
-          <caret line="195" column="29" selection-start-line="195" selection-start-column="29" selection-end-line="195" selection-end-column="29" />
+        <state relative-caret-position="189">
+          <caret line="9" column="22" selection-start-line="9" selection-start-column="22" selection-end-line="9" selection-end-column="22" />
           <folding />
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/promise/es6-extensions.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="273">
-          <caret line="15" column="0" selection-start-line="15" selection-start-column="0" selection-end-line="15" selection-end-column="0" />
+        <state relative-caret-position="231">
+          <caret line="91" column="6" selection-start-line="91" selection-start-column="6" selection-end-line="91" selection-end-column="6" />
           <folding>
             <element signature="e#0#44#0" expanded="false" />
           </folding>

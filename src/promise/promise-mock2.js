@@ -10,6 +10,8 @@
     var IS_ERROR = {};
     var LAST_ERROR = null;
 
+    Promise._noop = noop;
+
     //将a作为fn的参数进行执行
     function tryCallOne(fn, a) {
         try{
@@ -174,24 +176,6 @@
             reject(self, LAST_ERROR);
         }
     }
-
-    var promise1 = new Promise(function(resolve, reject){
-        setTimeout(function(){
-            reject('from promise1')
-        }, 1000)
-    });
-
-    var promise2 = new Promise(function(resolve, reject){
-        setTimeout(function(){
-            resolve(promise1);
-        }, 3000)
-    });
-
-    promise2.then(function(val){
-        console.log(val, 'to resolve');
-    }, function(val){
-        console.log(val, 'to reject');
-    })
 
     module.exports = Promise;
 })();
