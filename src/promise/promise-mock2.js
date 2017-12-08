@@ -10,6 +10,8 @@ var IS_ERROR = {};
 var LAST_ERROR = null;
 
 Promise._noop = noop;
+Promise._onReject = null;
+Promise._onHandle = null;
 
 //将a作为fn的参数进行执行
 function tryCallOne(fn, a) {
@@ -77,6 +79,9 @@ function finale(self) {
 function handle(self, deferred) {
     while (self._state === 3){
         self = self._value;
+    }
+    if(Promise._onHandle){
+        Promise._onHandle(self);
     }
     if(self._state === 0){
         if(self._deferredState === 0){//thepromise.then(fn)
@@ -156,6 +161,11 @@ function resolve(self, newValue) {
 function reject(self, newValue) {
     self._state = 2;//onRejected
     self._value = newValue;
+
+    if(Promise._onReject){
+        Promise._onReject(self, newValue);
+    }
+
     finale(self, self._deferred);
 }
 
