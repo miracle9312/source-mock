@@ -15,3 +15,22 @@ var p1 = new Proxy(obj, {
 Object.defineProperty(p1,'name',{
     configurable: true
 });
+
+
+var obj = {
+    [Symbol.iterator]: function () {
+        var val = 0;
+        return {
+            length: 10,
+            next:function(){
+                if(val < this.length){
+                  return {value: val++, done:false}
+                }else{
+                    return {done: true}
+                }
+            }
+        }
+    }
+};
+
+console.log([...obj],'iterator');
