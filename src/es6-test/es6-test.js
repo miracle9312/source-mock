@@ -78,14 +78,27 @@ var n3 = genera2Obj.next('is greatful');
 console.log(n1, n2, n3)
 
 function* geneAsync() {
-    console.log('ready async');
+    console.log(1);
     yield setTimeout(function(){
-        var data = {name:'miracle'};
-        console.log(data)
+        console.log(2)
     }, 1000);
-    console.log('close')
+    console.log(3)
 }
 
 var geneAsyncObj = geneAsync();
 geneAsyncObj.next();
 geneAsyncObj.next();
+
+//
+function runGenera(fn) {
+    var g = fn();
+
+    function next(err, data) {
+        var result = g.next(data);
+        if(result.done) return;
+        result.value(next)
+    }
+
+    next();
+}
+
