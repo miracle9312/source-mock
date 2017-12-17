@@ -102,3 +102,69 @@ function runGenera(fn) {
     next();
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+var fn = (val, cb)=>{
+    setTimeout(()=>{
+        val *= val;
+        cb(val);
+    },1000)
+};
+
+function thunk(fn) {
+    return function(){
+        var args = Array.prototype.slice.call(arguments);
+        return function(cb){
+            args.push(cb);
+            fn.call(this, args)
+        }
+    }
+}
+
+var thunkedFn = thunk(fn);
+
+thunkedFn(50)(function(data){
+    console.log(data)
+});
+
+
+//es5 class 与es6 class的关系
+function Person(name) {
+    this.name = name;
+}
+
+Person.prototype.sayName = function() {
+    console.log(this.name);
+};
+
+class Person {
+    constructor(name){
+        this.name = name;
+    }
+
+    sayName() {
+        console.log(this.name);
+    }
+}

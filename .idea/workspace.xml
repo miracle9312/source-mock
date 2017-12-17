@@ -2,9 +2,9 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="c31b476f-2ebe-4974-baa9-e125532b8e38" name="Default" comment="">
+      <change type="DELETED" beforePath="$PROJECT_DIR$/src/es6-test/gene.txt" afterPath="" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/es6-test/es6-test.js" afterPath="$PROJECT_DIR$/src/es6-test/es6-test.js" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/es6-test/high-order-function.js" afterPath="$PROJECT_DIR$/src/es6-test/high-order-function.js" />
     </list>
     <ignored path="source-mock.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -72,8 +72,8 @@
       <file leaf-file-name="es6-test.js" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/es6-test/es6-test.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="222">
-              <caret line="91" column="2" selection-start-line="91" selection-start-column="2" selection-end-line="91" selection-end-column="2" />
+            <state relative-caret-position="264">
+              <caret line="159" column="2" selection-start-line="159" selection-start-column="2" selection-end-line="159" selection-end-column="2" />
               <folding>
                 <element signature="e#0#43#0" expanded="false" />
               </folding>
@@ -84,7 +84,7 @@
       <file leaf-file-name="high-order-function.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/es6-test/high-order-function.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="189">
+            <state relative-caret-position="-51">
               <caret line="11" column="23" selection-start-line="11" selection-start-column="23" selection-end-line="11" selection-end-column="23" />
               <folding>
                 <element signature="n#!!doc;n#sayName#0" expanded="false" />
@@ -96,7 +96,7 @@
       <file leaf-file-name="recursion.js" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/src/es6-test/recursion.js">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="420">
+            <state relative-caret-position="348">
               <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
               <folding>
                 <element signature="n#!!doc;n#fibo#0" expanded="false" />
@@ -250,8 +250,8 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="Scope" />
       <pane id="Scratches" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -411,12 +411,13 @@
       <workItem from="1512999870399" duration="1491000" />
       <workItem from="1513259092425" duration="2818000" />
       <workItem from="1513305989466" duration="15745000" />
-      <workItem from="1513391550805" duration="7414000" />
+      <workItem from="1513391550805" duration="9280000" />
+      <workItem from="1513510709992" duration="2292000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="133546000" />
+    <option name="totallyTimeSpent" value="137704000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="1432" y="100" width="1296" height="776" extended-state="6" />
@@ -846,7 +847,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/es6-test/recursion.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="420">
+        <state relative-caret-position="348">
           <caret line="22" column="0" selection-start-line="22" selection-start-column="0" selection-end-line="22" selection-end-column="0" />
           <folding>
             <element signature="n#!!doc;n#fibo#0" expanded="false" />
@@ -856,7 +857,7 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/es6-test/high-order-function.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="189">
+        <state relative-caret-position="-51">
           <caret line="11" column="23" selection-start-line="11" selection-start-column="23" selection-end-line="11" selection-end-column="23" />
           <folding>
             <element signature="n#!!doc;n#sayName#0" expanded="false" />
@@ -866,8 +867,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/src/es6-test/es6-test.js">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="222">
-          <caret line="91" column="2" selection-start-line="91" selection-start-column="2" selection-end-line="91" selection-end-column="2" />
+        <state relative-caret-position="264">
+          <caret line="159" column="2" selection-start-line="159" selection-start-column="2" selection-end-line="159" selection-end-column="2" />
           <folding>
             <element signature="e#0#43#0" expanded="false" />
           </folding>
