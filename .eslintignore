@@ -5,4 +5,4 @@ node_modules
 
 src/e6-test
 src/promise
-/*.js
+*.js

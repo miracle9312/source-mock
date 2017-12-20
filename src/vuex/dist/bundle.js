@@ -295,12 +295,16 @@ var _vuex = __webpack_require__(6);
 
 var _vuex2 = _interopRequireDefault(_vuex);
 
+var _app = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"./components/app\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+
+var _app2 = _interopRequireDefault(_app);
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
-/**
- * Created by miracle on 2017/12/18.
- */
-_vue2.default.use(_vuex2.default);
+_vue2.default.use(_vuex2.default); /**
+                                    * Created by miracle on 2017/12/18.
+                                    */
+
 
 var store = new _vuex2.default.Store({
     state: {
@@ -313,11 +317,21 @@ var store = new _vuex2.default.Store({
     }
 });
 
+_vue2.default.component("global-component", {
+    template: "<div>defined is a global component</div>"
+});
+
 new _vue2.default({
-    el: "#app",
+    el: '#app',
     computed: {
         count: function count() {
             return store.state.count;
+        }
+    },
+    components: { 'app': _app2.default },
+    methods: {
+        increment: function increment() {
+            store.commit("increment");
         }
     }
 });

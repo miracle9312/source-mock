@@ -6,7 +6,10 @@
 </head>
 <body>
 <div id="app">
-  <p>{{count}}</p>
+    <global-component></global-component>
+    <app></app>
+    <p>{{count}}</p>
+    <button @click="increment">increment</button>
 </div>
 <script src="bundle.js"></script>
 </body>
