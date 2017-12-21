@@ -3,7 +3,7 @@
         "browser": true,
         "es6": true
     },
-    "extends": ["vue"],
+    "extends": ["eslint:recommended","vue"],
     "plugins":["vue"],
     "parserOptions": {
         "sourceType": "module"
@@ -55,7 +55,7 @@
         "id-length": "error",
         "id-match": "error",
         "implicit-arrow-linebreak": "error",
-        "indent": "error",
+        "indent": ["error", 4],
         "indent-legacy": "error",
         "init-declarations": "error",
         "jsx-quotes": "error",
@@ -199,12 +199,12 @@
         "prefer-spread": "error",
         "prefer-template": "error",
         "quote-props": ["error","as-needed"],
-        "quotes": "error",
+        "quotes": ["error","double",{"avoidEscape":true,"allowTemplateLiterals":true}],
         "radix": "error",
         "require-await": "error",
         "require-jsdoc": "error",
         "rest-spread-spacing": "error",
-        "semi": "error",
+        "semi": ["error","always"],
         "semi-spacing": "error",
         "semi-style": "error",
         "sort-imports": "error",

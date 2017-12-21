@@ -1,9 +1,10 @@
 /**
  * Created by miracle on 2017/12/18.
  */
-import Vue from 'vue';
+import Vue from "vue";
 import Vuex from "vuex";
-import app from "./components/app"
+import app from "./src/components/app";
+console.log(app);
 
 Vue.use(Vuex);
 
@@ -13,7 +14,7 @@ const store = new Vuex.Store({
     },
     mutations: {
         increment () {
-            store.state.count++
+            store.state.count++;
         }
     }
 });
@@ -23,18 +24,16 @@ Vue.component("global-component", {
 });
 
 new Vue({
-    el: '#app',
+    el: "#app",
     computed: {
         count () {
             return store.state.count;
         }
     },
-    components: {'app':app},
     methods: {
         increment () {
             store.commit("increment");
         }
     }
 });
-
 

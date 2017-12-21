@@ -18,8 +18,9 @@
   },
   "homepage": "https://github.com/miracle9312/source-mock#readme",
   "dependencies": {
+    "css-loader": "^0.28.7",
     "eslint": "^4.13.1",
-    "vue": "^2.5.11",
+    "vue": "^2.5.13",
     "webpack": "^3.10.0"
   },
   "devDependencies": {
@@ -30,6 +31,7 @@
     "eslint-loader": "^1.9.0",
     "eslint-plugin-vue": "^2.1.0",
     "vue-loader": "^13.6.0",
+    "vue-template-compiler": "^2.5.13",
     "vuex": "^3.0.1"
   }
 }
