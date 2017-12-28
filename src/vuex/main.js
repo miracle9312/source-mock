@@ -3,14 +3,16 @@
  */
 import Vue from "vue";
 import Vuex from "vuex";
-import app from "./src/components/app";
-console.log(app);
+import counter from "./src/components/counter";
 
 Vue.use(Vuex);
 
 const store = new Vuex.Store({
     state: {
-        count: 0
+        count: 0,
+        begin: "BEGIN",
+        terminate: "TERMINATE",
+        counting: "COUNTING"
     },
     mutations: {
         increment () {
@@ -25,15 +27,14 @@ Vue.component("global-component", {
 
 new Vue({
     el: "#app",
-    computed: {
-        count () {
-            return store.state.count;
-        }
+    store,
+    components: {
+        counter
     },
-    methods: {
-        increment () {
-            store.commit("increment");
-        }
-    }
+    template: `<div class="app">
+                    <global-component></global-component>
+                    <counter></counter>
+                    <p>{{name}}}</p>
+                </div>`
 });
 
