@@ -14,6 +14,10 @@ const store = new Vuex.Store({
         terminate: "TERMINATE",
         counting: "COUNTING"
     },
+    getters: {
+        gcount: (state) => `${state.count} getter`,
+        gdoublecount: (state, getters) => `${getters.gcount} double`
+    },
     mutations: {
         increment () {
             store.state.count++;
@@ -34,7 +38,6 @@ new Vue({
     template: `<div class="app">
                     <global-component></global-component>
                     <counter></counter>
-                    <p>{{name}}}</p>
                 </div>`
 });
 
