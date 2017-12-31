@@ -28,13 +28,13 @@ module.exports = {
       }
     ]
   },
-  resolve: {
-    extensions: [
-      '.js',
-      '.vue'
-    ],
-    alias: {
-      'vue$': 'vue/dist/vue.common.js'
+    resolve: {
+        extensions: [
+            '.js',
+            '.vue'
+        ],
+        alias: {
+            'vue$': 'vue/dist/vue.common.js',
+        }
     }
-  }
 }

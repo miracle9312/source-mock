@@ -181,7 +181,7 @@
             "ObjectPattern": { "multiline": true }
         }],
         "object-curly-spacing": "error",
-        "object-property-newline": "error",
+        "object-property-newline": ["error",{ "allowMultiplePropertiesPerLine": true }],
         "object-shorthand": "error",
         "one-var": "error",
         "one-var-declaration-per-line": "error",
