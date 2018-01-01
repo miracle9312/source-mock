@@ -62,15 +62,14 @@
         "key-spacing": "error",
         "keyword-spacing": "error",
         "line-comment-position": "error",
-        "linebreak-style": [
-            "error",
-            "windows"
-        ],
         "lines-around-comment": "error",
         "lines-around-directive": "error",
         "lines-between-class-members": "error",
         "max-depth": "error",
-        "max-len": "error",
+        "max-len": ["error",
+            { "ignoreUrls": true },
+            { "ignoreStrings": true },
+            { "ignoreTemplateLiterals": true }],
         "max-lines": "error",
         "max-nested-callbacks": "error",
         "max-params": "error",
@@ -177,7 +176,7 @@
         "no-with": "error",
         "nonblock-statement-body-position": "error",
         "object-curly-newline":  ["error", {
-            "ObjectExpression": "always",
+            "ObjectExpression": { "multiline": true },
             "ObjectPattern": { "multiline": true }
         }],
         "object-curly-spacing": "error",
