@@ -1304,17 +1304,12 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 __WEBPACK_IMPORTED_MODULE_1_vue___default.a.use(__WEBPACK_IMPORTED_MODULE_2_vuex__["a" /* default */]);
 
-const store = new __WEBPACK_IMPORTED_MODULE_2_vuex__["a" /* default */].Store({
+const moduleA = {
     state: {
         count: 0,
         begin: "BEGIN",
         terminate: "TERMINATE",
-        counting: "COUNTING",
-        person: {
-            name: "miracle",
-            age: 25
-        },
-        asyncData: null
+        counting: "COUNTING"
     },
     getters: {
         gcount: state => `${state.count} getter`,
@@ -1323,7 +1318,19 @@ const store = new __WEBPACK_IMPORTED_MODULE_2_vuex__["a" /* default */].Store({
     mutations: {
         [__WEBPACK_IMPORTED_MODULE_0__src_vuex_mutation_types__["c" /* INCREMENT_MUTATION */]](state, data) {
             state.count += data.amount;
+        }
+    }
+};
+
+const moduleB = {
+    state: {
+        person: {
+            name: "miracle",
+            age: 25
         },
+        asyncData: null
+    },
+    mutations: {
         [__WEBPACK_IMPORTED_MODULE_0__src_vuex_mutation_types__["a" /* GROWUP_MUTATION */]](state) {
             state.person = _extends({}, state.person, {
                 appear: "handsome"
@@ -1362,6 +1369,13 @@ const store = new __WEBPACK_IMPORTED_MODULE_2_vuex__["a" /* default */].Store({
                 console.log("GAME OVER");
             });
         }
+    }
+};
+
+const store = new __WEBPACK_IMPORTED_MODULE_2_vuex__["a" /* default */].Store({
+    modules: {
+        ma: moduleA,
+        mb: moduleB
     }
 });
 
@@ -13030,10 +13044,9 @@ var render = function() {
         _vm._s(_vm.gcount) +
         " " +
         _vm._s(_vm.gdoublecount) +
-        "\n    person appear: " +
-        _vm._s(_vm.person.appear ? _vm.person.appear : "ugly") +
         "\n    "
     ),
+    _vm._v(" "),
     _c("button", { on: { click: _vm.addProperty } }, [_vm._v("component add")]),
     _vm._v(" "),
     _c("button", { on: { click: _vm.trigger } }, [_vm._v("trigger action")])
