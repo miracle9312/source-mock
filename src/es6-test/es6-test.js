@@ -1,6 +1,7 @@
 /**
  * Created by miracle on 2017/12/8.
  */
+/*eslint-disable*/
 const fs = require('fs')
 var obj = {
     name: 'miracle'
@@ -102,30 +103,6 @@ function runGenera(fn) {
     next();
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 var fn = (val, cb)=>{
     setTimeout(()=>{
         val *= val;
@@ -159,7 +136,7 @@ Person.prototype.sayName = function() {
     console.log(this.name);
 };
 
-class Person {
+/*class Person {
     constructor(name){
         this.name = name;
     }
@@ -167,4 +144,6 @@ class Person {
     sayName() {
         console.log(this.name);
     }
-}
+}*/
+
+
