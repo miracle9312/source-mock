@@ -32,3 +32,5 @@ function marry(wife) {
 
 var obj = new MyCls();
 console.log(obj.name()+" get birth to an " + obj.child + " success their " + MyCls.gene + " property")
+
+console.log(this);

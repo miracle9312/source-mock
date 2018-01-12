@@ -12,7 +12,7 @@ const state = {
 
 const getters = {
     gcount: (st) => `${st.count} getter`,
-    gdoublecount: (st, gts) => `${getters.gcount} double`,
+    gdoublecount: (st, gts) => `${gts.gcount} double`,
     personAge: (st, gts, rootState) => `${rootState.mb.person.age} from in moduleA`
 };
 
