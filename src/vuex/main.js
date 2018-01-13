@@ -5,6 +5,7 @@ import { mapActions, mapGetters, mapState } from "vuex";
 import Vue from "vue";
 import counter from "./src/components/counter";
 import store from "./src/vuex";
+import trans from "./src/components/transition";
 
 Vue.component(
     "global-component",
@@ -19,7 +20,10 @@ new Vue({
         ...mapState("mb", ["person"]),
         ...mapGetters("ma", ["personAge"])
     },
-    components: { "counter-compontent": counter },
+    components: {
+        "counter-component": counter,
+        "trans-component": trans
+    },
     template: `<div class="app">
                     <global-component></global-component>
                     <p>personAge: {{personAge}}</p>
@@ -27,11 +31,12 @@ new Vue({
                     <button @click = "addPersonAge">addPersonAge</button>
                     <button @click = "actionD">lgSameTest</button>
                     <button @click = "actionC">actionC</button>
-                    <counter-compontent 
+                    <counter-component 
                         :message = "name" 
                         @changeName = "changeName"
-                    ></counter-compontent>
+                    ></counter-component>
                     <button @click = "changeName">changename</button>
+                    <trans-component></trans-component>
                 </div>`,
     methods: {
         ...mapActions("mb", [
