@@ -10,23 +10,30 @@ module.exports = {
     path: path.resolve(__dirname, 'src/vuex/dist')
   },
   module: {
-    rules: [
-      {
-        enforce: 'pre',
-        test: /\.(js|vue)$/,
-        loader: 'eslint-loader',
-        exclude: /node_modules/
-      },
-      {
-        test: /\.js$/,
-        exclude: /node_modules/,
-        loader: 'babel-loader'
-      },
-      {
-        test: /\.vue$/,
-        loader: 'vue-loader'
-      }
-    ]
+      rules: [
+          {
+              enforce: 'pre',
+              test: /\.(js|vue)$/,
+              loader: 'eslint-loader',
+              exclude: /node_modules/
+          },
+          {
+              test: /\.js$/,
+              exclude: /node_modules/,
+              loader: 'babel-loader'
+          },
+          {
+              test: /\.vue$/,
+              loader: 'vue-loader'
+          },
+          {
+              test: /\.css$/,
+              use: [
+                  'style-loader',
+                  'css-loader'
+              ]
+          }
+      ]
   },
     resolve: {
         extensions: [
