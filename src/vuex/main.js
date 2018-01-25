@@ -1,7 +1,6 @@
 /**
  * Created by miracle on 2017/12/18.
  */
-import "element-ui/lib/theme-chalk/index.css";
 import { mapActions, mapGetters, mapState } from "vuex";
 import Vue from "vue";
 import counter from "./src/components/counter";

@@ -12631,15 +12631,14 @@ const tableData = [{
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-throw new Error("Cannot find module \"element-ui/lib/theme-chalk/index.css\"");
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vuex__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue__ = __webpack_require__(5);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_vue__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__src_components_counter__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__src_components_paragraph__ = __webpack_require__(20);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__src_vuex__ = __webpack_require__(24);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__src_components_table_test__ = __webpack_require__(27);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__src_components_transition__ = __webpack_require__(32);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0_vuex__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_vue___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_vue__);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__src_components_counter__ = __webpack_require__(15);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__src_components_paragraph__ = __webpack_require__(20);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__src_vuex__ = __webpack_require__(24);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__src_components_table_test__ = __webpack_require__(27);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__src_components_transition__ = __webpack_require__(32);
 var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
 /**
@@ -12653,19 +12652,18 @@ var _extends = Object.assign || function (target) { for (var i = 1; i < argument
 
 
 
+__WEBPACK_IMPORTED_MODULE_1_vue___default.a.component("global-component", { template: "<div>defined a global component</div>" });
 
-__WEBPACK_IMPORTED_MODULE_2_vue___default.a.component("global-component", { template: "<div>defined a global component</div>" });
-
-new __WEBPACK_IMPORTED_MODULE_2_vue___default.a({
+new __WEBPACK_IMPORTED_MODULE_1_vue___default.a({
     el: "#app",
     data: { name: "miracle" },
-    store: __WEBPACK_IMPORTED_MODULE_5__src_vuex__["a" /* default */],
-    computed: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_1_vuex__["e" /* mapState */])("mb", ["person"]), Object(__WEBPACK_IMPORTED_MODULE_1_vuex__["c" /* mapGetters */])("ma", ["personAge"])),
+    store: __WEBPACK_IMPORTED_MODULE_4__src_vuex__["a" /* default */],
+    computed: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["e" /* mapState */])("mb", ["person"]), Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["c" /* mapGetters */])("ma", ["personAge"])),
     components: {
-        "counter-component": __WEBPACK_IMPORTED_MODULE_3__src_components_counter__["a" /* default */],
-        "trans-component": __WEBPACK_IMPORTED_MODULE_7__src_components_transition__["a" /* default */],
-        "table-component": __WEBPACK_IMPORTED_MODULE_6__src_components_table_test__["a" /* default */],
-        "para-component": __WEBPACK_IMPORTED_MODULE_4__src_components_paragraph__["a" /* default */]
+        "counter-component": __WEBPACK_IMPORTED_MODULE_2__src_components_counter__["a" /* default */],
+        "trans-component": __WEBPACK_IMPORTED_MODULE_6__src_components_transition__["a" /* default */],
+        "table-component": __WEBPACK_IMPORTED_MODULE_5__src_components_table_test__["a" /* default */],
+        "para-component": __WEBPACK_IMPORTED_MODULE_3__src_components_paragraph__["a" /* default */]
     },
     template: `<div class="app">
                     <para-component
@@ -12701,7 +12699,7 @@ new __WEBPACK_IMPORTED_MODULE_2_vue___default.a({
                          <table-component></table-component>
                     </para-component>    
                 </div>`,
-    methods: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_1_vuex__["b" /* mapActions */])("mb", ["actionA", "actionB", "actionC", "addPersonProperty", "addPersonAge"]), Object(__WEBPACK_IMPORTED_MODULE_1_vuex__["b" /* mapActions */])("ma", ["actionD"]), {
+    methods: _extends({}, Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["b" /* mapActions */])("mb", ["actionA", "actionB", "actionC", "addPersonProperty", "addPersonAge"]), Object(__WEBPACK_IMPORTED_MODULE_0_vuex__["b" /* mapActions */])("ma", ["actionD"]), {
         changeName() {
             this.name = "super miracle";
         }
