@@ -4,31 +4,36 @@
 import { mapActions, mapGetters, mapState } from "vuex";
 import Vue from "vue";
 import counter from "./src/components/counter";
+import doublebinding from "./src/components/doublebinding";
 import paragraph from "./src/components/paragraph";
 import store from "./src/vuex";
 import table from "./src/components/table-test";
 import trans from "./src/components/transition";
 
 Vue.component(
-    "global-component",
-    { template: "<div>defined a global component</div>" }
+  "global-component",
+  { template: "<div>defined a global component</div>" }
 );
 
 new Vue({
-    el: "#app",
-    data: { name: "miracle" },
-    store,
-    computed: {
-        ...mapState("mb", ["person"]),
-        ...mapGetters("ma", ["personAge"])
-    },
-    components: {
-        "counter-component": counter,
-        "trans-component": trans,
-        "table-component": table,
-        "para-component": paragraph
-    },
-    template: `<div class="app">
+  el: "#app",
+  data: {
+    name: "miracle",
+    price: 0
+  },
+  store,
+  computed: {
+    ...mapState("mb", ["person"]),
+    ...mapGetters("ma", ["personAge"])
+  },
+  components: {
+    "counter-component": counter,
+    "trans-component": trans,
+    "table-component": table,
+    "para-component": paragraph,
+    "dbinding-component": doublebinding
+  },
+  template: `<div class="app">
                     <para-component
                         para-title="global component" 
                     >
@@ -60,19 +65,26 @@ new Vue({
                         para-title="element table"
                     >
                          <table-component></table-component>
-                    </para-component>    
+                    </para-component>
+                    <para-component
+                        para-title="double binding"
+                    >
+                         <dbinding-component
+                            v-model="price"
+                         ></dbinding-component>
+                    </para-component>     
                 </div>`,
-    methods: {
-        ...mapActions("mb", [
-            "actionA",
-            "actionB",
-            "actionC",
-            "addPersonProperty",
-            "addPersonAge"
-        ]),
-        ...mapActions("ma", ["actionD"]),
-        changeName () {
-            this.name = "super miracle";
-        }
+  methods: {
+    ...mapActions("mb", [
+      "actionA",
+      "actionB",
+      "actionC",
+      "addPersonProperty",
+      "addPersonAge"
+    ]),
+    ...mapActions("ma", ["actionD"]),
+    changeName () {
+      this.name = "super miracle";
     }
+  }
 });

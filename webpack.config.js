@@ -9,6 +9,7 @@ module.exports = {
     filename: 'bundle.js',
     path: path.resolve(__dirname, 'src/vuex/dist')
   },
+  devtool: 'source-map',
   module: {
       rules: [
           {

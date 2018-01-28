@@ -9,9 +9,9 @@ import moduleB from "./modules/moduleB";
 Vue.use(Vuex);
 
 export default new Vuex.Store({
-    modules: {
-        ma: moduleA,
-        mb: moduleB
-    }
+  modules: {
+    ma: moduleA,
+    mb: moduleB
+  }
 });
 
