@@ -2,12 +2,14 @@
  * Created by miracle on 2017/12/18.
  */
 import { mapActions, mapGetters, mapState } from "vuex";
+import MyTable from "./src/packages/table";
 import Vue from "vue";
 import counter from "./src/components/counter";
 import doublebinding from "./src/components/doublebinding";
 import paragraph from "./src/components/paragraph";
 import store from "./src/vuex";
 import table from "./src/components/table-test";
+import { tableData } from "./src/packages/test-data";
 import trans from "./src/components/transition";
 
 Vue.component(
@@ -19,7 +21,8 @@ new Vue({
   el: "#app",
   data: {
     name: "miracle",
-    price: 0
+    price: 0,
+    tableData
   },
   store,
   computed: {
@@ -31,9 +34,17 @@ new Vue({
     "trans-component": trans,
     "table-component": table,
     "para-component": paragraph,
-    "dbinding-component": doublebinding
+    "dbinding-component": doublebinding,
+    MyTable
   },
   template: `<div class="app">
+                    <para-component
+                        para-title="global component" 
+                    >
+                        <my-table
+                            :data="tableData"
+                        ></my-table>
+                    </para-component>
                     <para-component
                         para-title="global component" 
                     >
