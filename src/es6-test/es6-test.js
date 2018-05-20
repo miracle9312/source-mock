@@ -122,9 +122,9 @@ function thunk(fn) {
 
 var thunkedFn = thunk(fn);
 
-thunkedFn(50)(function(data){
+/*thunkedFn(50)(function(data){
     console.log(data)
-});
+});*/
 
 
 //es5 class 与es6 class的关系
@@ -146,4 +146,18 @@ Person.prototype.sayName = function() {
     }
 }*/
 
+var promiseInstance = new Promise((resolve, reject) => {
+    setTimeout(()=> {
+        reject('aync1')
+    }, 1000)
+})
 
+//async
+async function testAsync(){
+    var val = await promiseInstance
+    console.log('==========async==========', val);
+}
+
+testAsync().catch((val)=>{
+    console.log(val);
+});
