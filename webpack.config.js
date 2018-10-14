@@ -11,38 +11,43 @@ module.exports = {
   },
   devtool: 'source-map',
   module: {
-      rules: [
-          {
-              enforce: 'pre',
-              test: /\.(js|vue)$/,
-              loader: 'eslint-loader',
-              exclude: /node_modules/
-          },
-          {
-              test: /\.js$/,
-              exclude: /node_modules/,
-              loader: 'babel-loader'
-          },
-          {
-              test: /\.vue$/,
-              loader: 'vue-loader'
-          },
-          {
-              test: /\.css$/,
-              use: [
-                  'style-loader',
-                  'css-loader'
-              ]
-          }
-      ]
+    rules: [
+      {
+        enforce: 'pre',
+        test: /\.(js|vue)$/,
+        loader: 'eslint-loader',
+        exclude: /node_modules/
+      },
+      {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        loader: 'babel-loader'
+      },
+      {
+        test: /\.vue$/,
+        loader: 'vue-loader'
+      },
+      {
+        test: /\.css$/,
+        use: [
+          'style-loader',
+          'css-loader'
+        ]
+      }
+    ]
   },
-    resolve: {
-        extensions: [
-            '.js',
-            '.vue'
-        ],
-        alias: {
-            'vue$': 'vue/dist/vue.common.js',
-        }
+  resolve: {
+    extensions: [
+      '.js',
+      '.vue'
+    ],
+    alias: {
+      'vue$': 'vue/dist/vue.common.js'
     }
+  },
+  devServer: {
+    contentBase: path.join(__dirname, "src/vue/dist"),
+    compress: true,
+    port: 9000
+  }
 }
