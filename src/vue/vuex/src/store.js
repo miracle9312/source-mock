@@ -1,4 +1,5 @@
 import applyMixin from "./mixin";
+import ModuleCollection from './modules/module-collection';
 
 let Vue = null;
 const noop = function () {};
