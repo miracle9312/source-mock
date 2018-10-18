@@ -5,7 +5,14 @@ import App from "./app";
 import Vue from "vue";
 import Vuex from "./vuex/src";
 
-const store = new Vuex.Store({ state: { count: 1 }});
+const store = new Vuex.Store({
+  state: { count: 1 },
+  mutations: {
+    add (state, number) {
+      state.count += number;
+    }
+  }
+});
 
 Vue.use(Vuex);
 

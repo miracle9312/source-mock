@@ -1,6 +1,6 @@
 <template>
     <div>
-        app-component
+        count:{{state.count}}
         <test-install-child></test-install-child>
     </div>
 </template>
@@ -11,6 +11,16 @@
     name: "app",
     created () {
       console.log(this);
+    },
+    computed: {
+      state () {
+        return this.$store.state;
+      }
+    },
+    methods: {
+      add () {
+        this.$store.commit("add", 2);
+      }
     },
     components: { TestInstallChild }
   };
