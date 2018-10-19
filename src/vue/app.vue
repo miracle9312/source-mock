@@ -2,6 +2,7 @@
     <div>
         count:{{state.count}}
         <test-install-child></test-install-child>
+        <button @click="add">add</button>
     </div>
 </template>
 

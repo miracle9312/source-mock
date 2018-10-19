@@ -16,9 +16,21 @@ export class Store {
     this.commit = function (_type, _payload, _options) {
       commit.call(store, _type, _payload, _options);
     };
-    const state = this._modules.root;
+    const state = this._modules.root.state;
     // 安装根模块
     this.installModule(this, state, [], this._modules.root);
+    // 注册数据相应功能的实例
+    this.resetStoreVm(this, state);
+  }
+
+  get state () {
+    return this._vm._data.$$state;
+  }
+
+  set state (v) {
+    if (process.env.NODE_ENV !== "production") {
+      console.error("user store.replaceState()");
+    }
   }
 
   installModule (store, state, path, module) {
@@ -61,6 +73,23 @@ export class Store {
     entry.forEach(function commitIterator (handler) {
       handler(payload);
     });
+  }
+
+  // 注册响应式实例
+  resetStoreVm (store, state) {
+    const oldVm = store._vm;
+    // 注册
+    store._vm = new Vue({
+      data: {
+        $$state: state
+      }
+    });
+    // 注销旧实例
+    if (oldVm) {
+      Vue.nextTick(() => {
+        oldVm.destroy();
+      });
+    }
   }
 }
 

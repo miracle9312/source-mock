@@ -5,6 +5,8 @@ import App from "./app";
 import Vue from "vue";
 import Vuex from "./vuex/src";
 
+Vue.use(Vuex);
+
 const store = new Vuex.Store({
   state: { count: 1 },
   mutations: {
@@ -13,8 +15,6 @@ const store = new Vuex.Store({
     }
   }
 });
-
-Vue.use(Vuex);
 
 new Vue({
   store,

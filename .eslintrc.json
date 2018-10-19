@@ -136,7 +136,7 @@
         "no-param-reassign": "warn",
         "no-path-concat": "error",
         "no-plusplus": "off",
-        "no-process-env": "error",
+//        "no-process-env": "error",
         "no-process-exit": "error",
         "no-proto": "error",
         "no-prototype-builtins": "error",
