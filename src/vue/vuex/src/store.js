@@ -7,7 +7,6 @@ let Vue = null;
 export class Store {
   constructor (options = {}) {
     // 声明属性
-    this._committing = false;
     this._mutations = Object.create(null);// 为什么不直接赋值null
     this._modules = new ModuleCollection(options);
     // 声明发布函数

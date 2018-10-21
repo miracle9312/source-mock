@@ -22,7 +22,6 @@ export default function (Vue) {
   function vuexInit () {
     // 根组件
     if (this.$options && this.$options.store) {
-      // 1. todo 何时为函数
       this.$store = typeof this.$options.store === "function"
         ? this.$options.store()
         : this.$options.store;
