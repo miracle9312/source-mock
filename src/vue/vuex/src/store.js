@@ -1,6 +1,6 @@
 import ModuleCollection from "./modules/module-collection";
 import applyMixin from "./mixin";
-import { isObject } from "./util";
+import { isObject, isPromise } from "./util";
 
 let Vue = null;
 
@@ -8,6 +8,7 @@ export class Store {
   constructor (options = {}) {
     // 声明属性
     this._mutations = Object.create(null);// 为什么不直接赋值null
+    this._actions = Object.create(null);
     this._modules = new ModuleCollection(options);
     // 声明发布函数
     const store = this;
@@ -37,6 +38,23 @@ export class Store {
     const local = this.makeLocalContext(store, path);
     module.forEachMutation((mutation, key) => {
       this.registerMutation(store, key, mutation, local);
+    });
+
+    module.forEachAction((action, key) => {
+      this.registerAction(store, key, action, local);
+    });
+  }
+
+  // 注册action
+  registerAction (store, type, handler, local) {
+    const entry = this._actions[type] || (this._actions[type] = []);
+    entry.push(function WrapperedActionHandler (payload, cb) {
+      const res = handler.call(local, payload, cb);
+      if(!isPromise(res)) {
+        res = Promise.resolve(res);
+      }
+
+      return res;
     });
   }
 

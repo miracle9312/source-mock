@@ -15,4 +15,11 @@ export default class Module {
       forEachValue(this._rawModule.mutations, fn);
     }
   }
+
+  // 遍历action，执行函数
+  forEachAction (fn) {
+    if (this._rawModule.actions) {
+      forEachValue(this._rawModule.actions, fn);
+    }
+  }
 }
