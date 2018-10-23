@@ -2,6 +2,7 @@
     <div>
         count:{{state.count}}
         <button @click="add">add</button>
+        <button @click="asyncAdd">asyncAdd</button>
     </div>
 </template>
 
@@ -19,6 +20,9 @@
     methods: {
       add () {
         this.$store.commit("add", 2);
+      },
+      asyncAdd () {
+        this.$store.dispatch("add", 4);
       }
     }
   };

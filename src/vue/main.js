@@ -13,6 +13,16 @@ const store = new Vuex.Store({
     add (state, number) {
       state.count += number;
     }
+  },
+  actions: {
+    add ({ commit }, number) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          commit("add", number);
+          resolve(number);
+        }, 1000);
+      });
+    }
   }
 });
 

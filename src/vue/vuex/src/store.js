@@ -12,9 +12,13 @@ export class Store {
     this._modules = new ModuleCollection(options);
     // 声明发布函数
     const store = this;
-    const { commit } = this;
+    const { commit, dispatch } = this;
+    // ?? todo 为什么最终要定义为实例属性
     this.commit = function (_type, _payload, _options) {
       commit.call(store, _type, _payload, _options);
+    };
+    this.dispatch = function (_type, _payload, _options) {
+      dispatch.call(store, _type, _payload, _options);
     };
     const state = this._modules.root.state;
     // 安装根模块
@@ -45,12 +49,34 @@ export class Store {
     });
   }
 
-  // 注册action
+  // 触发action事件队列
+  dispatch (_type, _payload) {
+    const {
+      type,
+      payload
+    } = unifyObjectStyle(_type, _payload);
+
+    // ??todo 为什么是一个事件队列，何时会出现一个key对应多个action
+    const entry = this._actions[type];
+
+    // 返回promise,dispatch().then()接收的值为数组或者某个值
+    return entry.length > 1
+      ? Promise.all(entry.map((handler) => handler(payload)))
+      : entry[0](payload);
+  }
+
+  // 注册action，事件队列中的事件返回值都是promise
   registerAction (store, type, handler, local) {
     const entry = this._actions[type] || (this._actions[type] = []);
     entry.push(function WrapperedActionHandler (payload, cb) {
-      const res = handler.call(local, payload, cb);
-      if(!isPromise(res)) {
+      let res = handler.call(store, {
+        dispatch: local.dispatch,
+        commit: local.commit,
+        state: local.state,
+        rootState: store.state
+      }, payload, cb);
+      // 默认action中返回promise，如果不是则将返回值包装在promise中
+      if (!isPromise(res)) {
         res = Promise.resolve(res);
       }
 
@@ -68,7 +94,11 @@ export class Store {
 
   // 惰性赋值，每次获取最新的module值 todo
   makeLocalContext (store, path) {
-    const local = {};
+    const local = {
+      dispatch: store.dispatch,
+      commit: store.commit
+    };
+
     Object.defineProperties(local, {
       state: {
         get: () => getNestedState(store.state, path)
