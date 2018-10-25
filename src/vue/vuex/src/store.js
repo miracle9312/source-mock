@@ -1,6 +1,6 @@
 import ModuleCollection from "./modules/module-collection";
 import applyMixin from "./mixin";
-import { isObject, isPromise } from "./util";
+import { isObject, isPromise, forEachValue } from "./util";
 
 let Vue = null;
 
@@ -10,6 +10,7 @@ export class Store {
     this._mutations = Object.create(null);// 为什么不直接赋值null
     this._actions = Object.create(null);
     this._modules = new ModuleCollection(options);
+    this._wrappedGetters = Object.create(null);
     // 声明发布函数
     const store = this;
     const { commit, dispatch } = this;
@@ -33,7 +34,7 @@ export class Store {
 
   set state (v) {
     if (process.env.NODE_ENV !== "production") {
-      console.error("user store.replaceState()");
+      console.error("use store.replaceState()");
     }
   }
 
@@ -46,6 +47,10 @@ export class Store {
 
     module.forEachAction((action, key) => {
       this.registerAction(store, key, action, local);
+    });
+
+    module.forEachGetters((getter, key) => {
+      this.registerGetter(store, key, getter, local);
     });
   }
 
@@ -92,6 +97,23 @@ export class Store {
     });
   }
 
+  // 注册getter
+  registerGetter (store, type, rawGetters, local) {
+    // 处理getter重名
+    if (this._wrappedGetters[type]) {
+      console.error("duplicate getter");
+    }
+    // 设置_wrappedGetters，用于
+    this._wrappedGetters[type] = function wrappedGetterHandlers (store) {
+      return rawGetters({
+        state: local.state,
+        getters: local.getters,
+        rootState: store.state,
+        rootGetters: store.getters
+      });
+    };
+  }
+
   // 惰性赋值，每次获取最新的module值 todo
   makeLocalContext (store, path) {
     const local = {
@@ -102,6 +124,9 @@ export class Store {
     Object.defineProperties(local, {
       state: {
         get: () => getNestedState(store.state, path)
+      },
+      getter: {
+        get: () => store.getters
       }
     });
 
@@ -125,11 +150,23 @@ export class Store {
   // 注册响应式实例
   resetStoreVm (store, state) {
     const oldVm = store._vm;
+    const computed = {};
+    const wrappedGetters = store._wrappedGetters;
+    store.getters = {};
+    // 将store.getters[key]指向store._vm[key],computed赋值
+    forEachValue(wrappedGetters, function (fn, key) {
+      Object.defineProperty(store.getters, {
+        get: () => store._vm[key],
+        enumerable: true
+      });
+      computed[key] = () => fn(store);
+    });
     // 注册
     store._vm = new Vue({
       data: {
         $$state: state
-      }
+      },
+      computed
     });
     // 注销旧实例
     if (oldVm) {
