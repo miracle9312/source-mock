@@ -9,6 +9,11 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: { count: 1 },
+  getters: {
+    square (state, getters) {
+      return Math.pow(state.count, 2);
+    }
+  },
   mutations: {
     add (state, number) {
       state.count += number;

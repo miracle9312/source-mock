@@ -1,6 +1,7 @@
 <template>
     <div>
-        count:{{state.count}}
+        <div>count:{{state.count}}</div>
+        <div>getterCount:{{getters.square}}</div>
         <button @click="add">add</button>
         <button @click="asyncAdd">asyncAdd</button>
     </div>
@@ -15,6 +16,9 @@
     computed: {
       state () {
         return this.$store.state;
+      },
+      getters () {
+        return this.$store.getters;
       }
     },
     methods: {

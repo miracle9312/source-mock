@@ -105,12 +105,12 @@ export class Store {
     }
     // 设置_wrappedGetters，用于
     this._wrappedGetters[type] = function wrappedGetterHandlers (store) {
-      return rawGetters({
-        state: local.state,
-        getters: local.getters,
-        rootState: store.state,
-        rootGetters: store.getters
-      });
+      return rawGetters(
+        local.state,
+        local.getters,
+        store.state,
+        store.getters
+      );
     };
   }
 
@@ -155,7 +155,7 @@ export class Store {
     store.getters = {};
     // 将store.getters[key]指向store._vm[key],computed赋值
     forEachValue(wrappedGetters, function (fn, key) {
-      Object.defineProperty(store.getters, {
+      Object.defineProperty(store.getters, key, {
         get: () => store._vm[key],
         enumerable: true
       });
