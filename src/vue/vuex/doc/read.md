@@ -322,3 +322,92 @@ function unifyObjectStyle (type, payload, options) {
 其实实现了type可以为字符串，也可以为对象，当为对象是，内部使用的type就是type.type，而第二个
 参数就变成了type，第三个参数变成了payload。<br>
 到此关于commit的原理已经介绍完毕，所有的代码见分支 https://github.com/miracle9312/source-mock/tree/fc1a7cd448d0c22079a1414004fdb1babb90f3b8
+
+##三、如何实现action
+### 用法
+定义一个action
+```
+add ({ commit }, number) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const pow = 2;
+          commit("add", Math.pow(number, pow));
+          resolve(number);
+        }, 1000);
+      });
+    }
+```
+触发action
+```
+ this.$store.dispatch("add", 4).then((data) => {
+          console.log(data);
+        });
+```
+### 为什么需要action
+有时我们需要触发一个异步执行的事件，比如接口请求等，但是如果依赖mutatoin这种同步执行的事件队列，我们无法
+获取执行的最终状态。此时我们需要找到一种解决方案实现以下两个目标
+- 一个异步执行的队列 
+- 捕获异步执行的最终状态
+
+通过这两个目标，我们可以大致推算该如何实现了，只要保证定义的所有事件都返回一个promise，再将这些promise
+放在一个队列中，通过promise.all去执行，返会一个最终状态的promise，这样既能保证事件之间的执行顺序，也能
+捕获最终的执行状态。
+
+### action和dispatch的实现
+
+#### 注册
+首先我们定义一个实例属性_actions,用于存放事件队列
+```
+constructor (options = {}) {
+    // ...
+    this._actions = Object.create(null);
+    // ...
+  }
+```
+接着在module类中定义一个实例方法forEachActions,用于遍历执行actions
+```
+export default class Module {
+  // ...
+  forEachAction (fn) {
+    if (this._rawModule.actions) {
+      forEachValue(this._rawModule.actions, fn);
+    }
+  }
+  // ...
+}
+```
+然后在installModule时期去遍历actions,注册事件队列
+```
+installModule (store, state, path, module) {
+    // ...
+    module.forEachAction((action, key) => {
+      this.registerAction(store, key, action, local);
+    });
+    // ...
+  }
+```
+注册
+```
+registerAction (store, type, handler, local) {
+    const entry = this._actions[type] || (this._actions[type] = []);
+    entry.push(function WrappedActionHandler (payload, cb) {
+      let res = handler.call(store, {
+        dispatch: local.dispatch,
+        commit: local.commit,
+        state: local.state,
+        rootState: store.state
+      }, payload, cb);
+      // 默认action中返回promise，如果不是则将返回值包装在promise中
+      if (!isPromise(res)) {
+        res = Promise.resolve(res);
+      }
+
+      return res;
+    });
+  }
+```
+注册方法中包含四个参数，store代表store实例，type代表action类型，handler是action函数，local是
+当前module下的context。首先判断是否已存在该类型acion的事件队列，如果不存在则需要初始化为数组。然后
+将该事件推入制定类型的事件队列。需要注意的两点，第一，action函数访问到的第一个参数为一个context对象
+，第二，刚事件返回的值始终是一个promise。
+

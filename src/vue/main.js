@@ -23,7 +23,8 @@ const store = new Vuex.Store({
     add ({ commit }, number) {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
-          commit("add", number);
+          const pow = 2;
+          commit("add", Math.pow(number, pow));
           resolve(number);
         }, 1000);
       });

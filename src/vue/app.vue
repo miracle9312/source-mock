@@ -26,7 +26,9 @@
         this.$store.commit("add", 2);
       },
       asyncAdd () {
-        this.$store.dispatch("add", 4);
+        this.$store.dispatch("add", 4).then((data) => {
+          console.log(data);
+        });
       }
     }
   };

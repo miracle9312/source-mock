@@ -16,10 +16,10 @@ export class Store {
     const { commit, dispatch } = this;
     // ?? todo 为什么最终要定义为实例属性
     this.commit = function (_type, _payload, _options) {
-      commit.call(store, _type, _payload, _options);
+      return commit.call(store, _type, _payload, _options);
     };
     this.dispatch = function (_type, _payload, _options) {
-      dispatch.call(store, _type, _payload, _options);
+      return dispatch.call(store, _type, _payload, _options);
     };
     const state = this._modules.root.state;
     // 安装根模块
@@ -73,7 +73,7 @@ export class Store {
   // 注册action，事件队列中的事件返回值都是promise
   registerAction (store, type, handler, local) {
     const entry = this._actions[type] || (this._actions[type] = []);
-    entry.push(function WrapperedActionHandler (payload, cb) {
+    entry.push(function WrappedActionHandler (payload, cb) {
       let res = handler.call(store, {
         dispatch: local.dispatch,
         commit: local.commit,
