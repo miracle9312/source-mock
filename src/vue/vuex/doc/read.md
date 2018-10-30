@@ -281,8 +281,9 @@ export class Store {
   }
 ```
 makeLocalContext返回一个local对象，其中保存着state的最新值，getNestState会通过路径
-搜索得到嵌套对象的指定值，这个写法非常优雅，可以在以后的代码中多学习和运用
-在得到这个保存着最新值的对象之后，接下来会遍历mutation并将mutation进行包装后push进指定类型的事件队列
+搜索得到嵌套对象的指定值，这个写法非常优雅，可以在以后的代码中多学习和运用。此外此时的local并不完整
+，完整的local包含state,getters,dispatch,commit,但是这部分我们只需要了解state,剩下的部分我们后续
+会介绍在得到这个保存着最新值的对象之后，接下来会遍历mutation并将mutation进行包装后push进指定类型的事件队列
 ，通过Moulde类的实例方法forEachMutation对mutations进行遍历，并执行registerMutation进行事件的注册，
 在registerMutation中返回this._mutations指定类型的事件队列，注册事件后的this._mutations的数据结构如下
 ![](./images/commit-mutations.jpg)
@@ -323,7 +324,7 @@ function unifyObjectStyle (type, payload, options) {
 参数就变成了type，第三个参数变成了payload。<br>
 到此关于commit的原理已经介绍完毕，所有的代码见分支 https://github.com/miracle9312/source-mock/tree/fc1a7cd448d0c22079a1414004fdb1babb90f3b8
 
-##三、如何实现action
+##三、action和dispatch原理
 ### 用法
 定义一个action
 ```
@@ -408,6 +409,131 @@ registerAction (store, type, handler, local) {
 ```
 注册方法中包含四个参数，store代表store实例，type代表action类型，handler是action函数，local是
 当前module下的context。首先判断是否已存在该类型acion的事件队列，如果不存在则需要初始化为数组。然后
-将该事件推入制定类型的事件队列。需要注意的两点，第一，action函数访问到的第一个参数为一个context对象
-，第二，刚事件返回的值始终是一个promise。
+将该事件推入指定类型的事件队列。需要注意的两点，第一，action函数访问到的第一个参数为一个context对象
+，第二，事件返回的值始终是一个promise。
 
+#### 发布
+```
+dispatch (_type, _payload) {
+    const {
+      type,
+      payload
+    } = unifyObjectStyle(_type, _payload);
+
+    // ??todo 为什么是一个事件队列，何时会出现一个key对应多个action
+    const entry = this._actions[type];
+
+    // 返回promise,dispatch().then()接收的值为数组或者某个值
+    return entry.length > 1
+      ? Promise.all(entry.map((handler) => handler(payload)))
+      : entry[0](payload);
+  }
+```
+首先获取相应类型的事件队列，然后传入参数执行，返回一个promise，当事件队列中包含的事件个数大于1时
+将返回的promise保存在一个数组中，然后通过Pomise.all触发，当事件队列中的事件只有一个时直接返回promise
+这样我们就可以通过dispatch(type, payload).then(data=>{})得到异步执行的结果，此外事件队列中的事件
+触发通过promise.all实现，两个目标都已经达成。
+
+##getters原理
+### getters的用法
+在store实例化时我们定义如下几个选项：
+```
+const store = new Vuex.Store({
+  state: { count: 1 },
+  getters: {
+    square (state, getters) {
+      return Math.pow(state.count, 2);
+    }
+  },
+  mutations: {
+      add (state, number) {
+        state.count += number;
+      }
+    }
+});
+
+```
+首先我们在store中定义一个state，getters和mutations，其中state中包含一个count，初始值为1，
+getters中定义一个square，该值返回为count的平方，在mutations中定义一个add事件，当触发add时
+count会增加number。<br>
+接着我们在页面中使用这个store：
+```vue
+<template>
+    <div>
+        <div>count:{{state.count}}</div>
+        <div>getterCount:{{getters.square}}</div>
+        <button @click="add">add</button>
+    </div>
+</template>
+
+<script>
+  export default {
+    name: "app",
+    created () {
+      console.log(this);
+    },
+    computed: {
+      state () {
+        return this.$store.state;
+      },
+      getters () {
+        return this.$store.getters;
+      }
+    },
+    methods: {
+      add () {
+        this.$store.commit("add", 2);
+      }
+    }
+  };
+</script>
+
+<style scoped>
+
+</style>
+```
+执行的结果是，我们每次触发add事件时，state.count会相应增2,而getter始终时state.count的平方。
+这不由得让我们想起了vue中的响应式系统，data和computed之间的关系，貌似如出一辙，实际上vuex就是利用
+vue中的响应式系统实现的。
+
+### getters的实现
+首先定一个实例属性_wappedGetters用来存放getters
+```
+export class Store {
+  constructor (options = {}) {
+    // ...
+    this._wrappedGetters = Object.create(null);
+    // ...
+  }
+```
+在modules中定义一个遍历执行getters的实例方法，并在installModule时期注册getters，并将getters存放至_wrappedGetters属性中
+
+```
+installModule (store, state, path, module) {
+    // ...
+    module.forEachGetters((getter, key) => {
+      this.registerGetter(store, key, getter, local);
+    });
+    // ...
+  }
+```
+```
+registerGetter (store, type, rawGetters, local) {
+    // 处理getter重名
+    if (this._wrappedGetters[type]) {
+      console.error("duplicate getter");
+    }
+    // 设置_wrappedGetters，用于
+    this._wrappedGetters[type] = function wrappedGetterHandlers (store) {
+      return rawGetters(
+        local.state,
+        local.getters,
+        store.state,
+        store.getters
+      );
+    };
+  }
+```
+需要注意的是，vuex中不能定义两个相同类型的getter，在注册时，我们将一个返回选项getters执行
+结果的函数，传入的参数为store实例，选项中的getters接受四个参数分别为作用域下和store实例中的state和getters
+关于local的问题在之后module原理的时候再做介绍，在此次的实现中local和store中的参数都是一致的。
