@@ -497,7 +497,7 @@ count会增加number。<br>
 vue中的响应式系统实现的。
 
 ### getters的实现
-首先定一个实例属性_wappedGetters用来存放getters
+首先定义一个实例属性_wappedGetters用来存放getters
 ```
 export class Store {
   constructor (options = {}) {
@@ -536,4 +536,48 @@ registerGetter (store, type, rawGetters, local) {
 ```
 需要注意的是，vuex中不能定义两个相同类型的getter，在注册时，我们将一个返回选项getters执行
 结果的函数，传入的参数为store实例，选项中的getters接受四个参数分别为作用域下和store实例中的state和getters
-关于local的问题在之后module原理的时候再做介绍，在此次的实现中local和store中的参数都是一致的。
+关于local的问题在之后module原理的时候再做介绍，在此次的实现中local和store中的参数都是一致的。<br>
+之后我们需要将所有的getters在resetStoreVm时期注入computed，并且在访问getters中的某个属性时将其
+代理到store.vm中的相应属性
+```
+// 注册响应式实例
+  resetStoreVm (store, state) {
+    // 将store.getters[key]指向store._vm[key],computed赋值
+    forEachValue(wrappedGetters, function (fn, key) {
+      computed[key] = () => fn(store);
+    });
+    // 注册
+    store._vm = new Vue({
+      data: {
+        $$state: state
+      },
+      computed
+    });
+    // 注销旧实例
+    if (oldVm) {
+      Vue.nextTick(() => {
+        oldVm.destroy();
+      });
+    }
+  }
+```
+在resetStroreVm时期，遍历wrappedGetters，并将getters包装在一个具有相同key的computed中
+再将这个computed注入到store._vm实例中。
+```
+resetStoreVm (store, state) {
+    store.getters = {};
+    forEachValue(wrappedGetters, function (fn, key) {
+    // ...
+      Object.defineProperty(store.getters, key, {
+        get: () => store._vm[key],
+        enumerable: true
+      });
+
+    });
+    // ...
+  }
+```
+然后将store.getters中的属性指向store._vm中对应的属性，也就是store.computed中对应的属性
+这样，当store._vm中data.$$state(store.state)发生变化时，引用state的getter也会实时计算
+以上就是getters能够响应式变化的原理
+具体代码见 https://github.com/miracle9312/source-mock/tree/b518d560152f80d0b441600b327ad7c4e1fe59de
