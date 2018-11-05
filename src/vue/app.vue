@@ -1,25 +1,22 @@
 <template>
     <div>
-        <div>count:{{state.count}}</div>
-        <div>getterCount:{{getters.square}}</div>
+        <div>count:{{count}}</div>
+        <div>getterCount:{{square}}</div>
         <button @click="add">add</button>
         <button @click="asyncAdd">asyncAdd</button>
     </div>
 </template>
 
 <script>
+  import vuex from "./vuex/src";
   export default {
     name: "app",
     created () {
       console.log(this);
     },
     computed: {
-      state () {
-        return this.$store.state;
-      },
-      getters () {
-        return this.$store.getters;
-      }
+      ...vuex.mapState(["count"]),
+      ...vuex.mapGetters(["square"])
     },
     methods: {
       add () {
