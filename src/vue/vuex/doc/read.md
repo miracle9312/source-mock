@@ -498,17 +498,18 @@ vue中的响应式系统实现的。
 
 ### getters的实现
 首先定义一个实例属性_wappedGetters用来存放getters
-```
+```js
 export class Store {
   constructor (options = {}) {
     // ...
     this._wrappedGetters = Object.create(null);
     // ...
   }
+}
 ```
 在modules中定义一个遍历执行getters的实例方法，并在installModule时期注册getters，并将getters存放至_wrappedGetters属性中
 
-```
+```js
 installModule (store, state, path, module) {
     // ...
     module.forEachGetters((getter, key) => {
@@ -517,7 +518,7 @@ installModule (store, state, path, module) {
     // ...
   }
 ```
-```
+```js
 registerGetter (store, type, rawGetters, local) {
     // 处理getter重名
     if (this._wrappedGetters[type]) {
@@ -539,7 +540,7 @@ registerGetter (store, type, rawGetters, local) {
 关于local的问题在之后module原理的时候再做介绍，在此次的实现中local和store中的参数都是一致的。<br>
 之后我们需要将所有的getters在resetStoreVm时期注入computed，并且在访问getters中的某个属性时将其
 代理到store.vm中的相应属性
-```
+```js
 // 注册响应式实例
   resetStoreVm (store, state) {
     // 将store.getters[key]指向store._vm[key],computed赋值
@@ -563,7 +564,7 @@ registerGetter (store, type, rawGetters, local) {
 ```
 在resetStroreVm时期，遍历wrappedGetters，并将getters包装在一个具有相同key的computed中
 再将这个computed注入到store._vm实例中。
-```
+```js
 resetStoreVm (store, state) {
     store.getters = {};
     forEachValue(wrappedGetters, function (fn, key) {
@@ -572,7 +573,6 @@ resetStoreVm (store, state) {
         get: () => store._vm[key],
         enumerable: true
       });
-
     });
     // ...
   }
@@ -581,3 +581,104 @@ resetStoreVm (store, state) {
 这样，当store._vm中data.$$state(store.state)发生变化时，引用state的getter也会实时计算
 以上就是getters能够响应式变化的原理
 具体代码见 https://github.com/miracle9312/source-mock/tree/b518d560152f80d0b441600b327ad7c4e1fe59de
+
+## helpers原理
+helpers.js中向外暴露了四个方法，分别为mapState,mapGetters,mapMutations和mapAction。这四个辅助方法
+帮助开发者在组件中快速的引用自己定义的state,getters,mutations和actions。首先了解其用法再深入其原理
+```js
+const store = new Vuex.Store({
+  state: { count: 1 },
+  getters: {
+    square (state, getters) {
+      return Math.pow(state.count, 2);
+    }
+  },
+  mutations: {
+    add (state, number) {
+      state.count += number;
+    }
+  },
+  actions: {
+    add ({ commit }, number) {
+      return new Promise((resolve, reject) => {
+        setTimeout(() => {
+          const pow = 2;
+          commit("add", Math.pow(number, pow));
+          resolve(number);
+        }, 1000);
+      });
+    }
+  }
+});
+```
+以上是我们定义的store
+```vue
+<template>
+    <div>
+        <div>count:{{count}}</div>
+        <div>getterCount:{{square}}</div>
+        <button @click="mutAdd(1)">mutAdd</button>
+        <button @click="actAdd(1)">actAdd</button>
+    </div>
+</template>
+
+<script>
+  import vuex from "./vuex/src";
+  export default {
+    name: "app",
+    computed: {
+      ...vuex.mapState(["count"]),
+      ...vuex.mapGetters(["square"])
+    },
+    methods: {
+      ...vuex.mapMutations({ mutAdd: "add" }),
+      ...vuex.mapActions({ actAdd: "add" })
+    }
+  };
+</script>
+
+<style scoped>
+
+</style>
+```
+然后通过mapXXX的方式将store引入组件并使用。观察这几个方法的引用方式，可以知道这几个方法最终都会返回一个
+对象，对象中所有的值都是一个函数，再通过展开运算符把这些方法分别注入到computed和methods属性中。对于mapState
+和mapGetters而言，返回对象中的函数，执行后会返回传入参数对应的值（return store.state[key];或者return store.getters[key]），
+而对于mapMutations和mapActions而言，返回对象中的函数，将执行commit（[key],payload），或者dispatch（[key],payload）
+这就是这几个方法的简单原理，接下去将一个个分析vuex中的实现
+
+### mapState
+```js
+export const mapState = function (states) {
+  // 定义一个返回结果map
+  const res = {};
+  // 规范化state
+  normalizeMap(states).forEach(({ key, val }) => {
+    // 赋值
+    res[key] = function mappedState () {
+      const state = this.$store.state;
+      const getters = this.$store.getters;
+
+      return typeof val === "function"
+        ? val.call(this, state, getters)
+        : state[val];
+    };
+  });
+
+  // 返回结果
+  return res;
+};
+```
+首先看mapsState最终的返回值res是一个对象，传入的参数是我们想要map出来的几个属性，mapState可以传入一个
+字符串数组或者是对象数组，字符串数组中包含的是引用的属性，对象数组包含的输使用值与引用的映射，这两种
+形式的传参，我们需要通过normalizeMap进行规范化，统一返回一个对象数组
+```js
+function normalizeMap (map) {
+  return Array.isArray(map)
+    ? map.map(key => ({ key, val: key }))
+    : Object.keys(map).map(key => ({ key, val: map[key] }))
+}
+```
+normalizeMap函数首先判断传入的值是否为数组，若是，则返回一个key和val都为数组元素的对象数组，如果不是数组，
+则判断传入值为一个对象，接着遍历该对象，返回一个以对象键值为key和val值的对象数组。此时通过normalizeMap之后
+的map都将是一个对象数组。

@@ -2,8 +2,8 @@
     <div>
         <div>count:{{count}}</div>
         <div>getterCount:{{square}}</div>
-        <button @click="add">add</button>
-        <button @click="asyncAdd">asyncAdd</button>
+        <button @click="mutAdd(1)">mutAdd</button>
+        <button @click="actAdd(1)">actAdd</button>
     </div>
 </template>
 
@@ -11,22 +11,13 @@
   import vuex from "./vuex/src";
   export default {
     name: "app",
-    created () {
-      console.log(this);
-    },
     computed: {
       ...vuex.mapState(["count"]),
       ...vuex.mapGetters(["square"])
     },
     methods: {
-      add () {
-        this.$store.commit("add", 2);
-      },
-      asyncAdd () {
-        this.$store.dispatch("add", 4).then((data) => {
-          console.log(data);
-        });
-      }
+      ...vuex.mapMutations({ mutAdd: "add" }),
+      ...vuex.mapActions({ actAdd: "add" })
     }
   };
 </script>
