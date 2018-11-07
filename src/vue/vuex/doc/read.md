@@ -700,7 +700,7 @@ export const mapGetters = function (getters) {
   return res;
 };
 ```
-###mapActions和mapMutations
+### mapActions和mapMutations
 ```js
 export const mapActions = function (actions) {
   const res = {};
