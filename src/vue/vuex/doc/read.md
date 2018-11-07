@@ -1,7 +1,7 @@
 # xxxx
 ## 一 install
 为了实现通过Vue.use()方法引入vuex，需要为vuex定义一个install方法。vuex中的intall方法主要作用是将store实例注入到每一个vue实例中，具体实现方式如下
-```
+```js
 export function install (_Vue) {
   // 避免重复安装
   if (Vue && Vue === _Vue) {
@@ -14,7 +14,7 @@ export function install (_Vue) {
 }
 ```
 以上代码中通过定义一个全局变量Vue保存当前的引入的Vue来避免重复安装，然后通过apllyMixin实现将store注入到各个实例中去
-```
+```js
 export default function (Vue) {
   // 获取vue版本
   const version = Number(Vue.version.split(".")[0]);
@@ -51,7 +51,7 @@ export default function (Vue) {
 首先看这段代码核心逻辑实现的关键函数vuexInit，该函数首先判断this.$options选项（该选项在根实例实例化时传入new Vue(options:Object)）
 中是否包含this.$store属性，如果有，则将实例的this.$store属性指向this.$options.$store,如果没有则指向this.$parent即父实例中的$store。
 此时我们在install执行后，通过在实例化根组件时把store传入options就能将所有子组件的$store属性都指向这个store了。
-```
+```js
 new Vue({
   store
 })
@@ -66,7 +66,7 @@ new Vue({
 commit实际上就是一个比较简单的发布-订阅模式的实现，不过这个过程中会涉及module的实现，state响应式的实现方式，为之后介绍action可以做一些铺垫
 ### 使用
 首先回顾下commit的使用
-```
+```js
 // 实例化store
 const store = new Vuex.Store({
   state: { count: 1 },
@@ -79,7 +79,7 @@ const store = new Vuex.Store({
 ```
 实例化store时，参数中的mutation就是事件队列中的事件，每个事件传入两个参数，
 分别时state和payload,每个事件实现的都是根据payload改变state的值
-```
+```vue
 <template>
     <div>
         count:{{state.count}}
@@ -114,7 +114,7 @@ const store = new Vuex.Store({
 
 ### 实现
 首先来看为了实现commit我们在构造函数中需要做些什么
-```
+```js
 export class Store {
   constructor (options = {}) {
     // 声明属性
@@ -147,7 +147,7 @@ export class Store {
 有模块的划分，需要对这些modules进行管理，由此衍生出了ModuleCollection类，本节先专注于commit的实现
 对于模块划分会放在后面讨论，对于直接传入的state，mutations，actions，getters，在vuex中会
 先通过Module类进行包装，然后注册在ModuleCollection的root属性中
-```
+```js
 export default class Module {
   constructor (rawModule, runtime) {
     const rawState = rawModule.state;
@@ -171,7 +171,7 @@ export function forEachValue (obj, fn) {
 构造函数中传入的参数rawModule就是{state，mutations，actions，getters}对象,在Module类中
 定义两个属性_rawModule用于存放传入的rawModule,forEachMutation实现mutations的遍历执行，将mutation对象的
 value,key传入fn并执行，接下去将这个module挂在modulecollection的root属性上
-```
+```js
 export default class ModuleCollection {
   constructor (rawRootModule) {
     // 注册根module，入参：path,module,runtime
@@ -193,7 +193,7 @@ export default class ModuleCollection {
 由于mutations中保存的所有事件都是为了按一定规则改变state，所以我们要先介绍下store是如何进行state的管理的
 尤其是如何通过state的改变响应式的改变getters中的值，在构造函数中提到过一个方法resetStoreVm，在这个函数中
 会进行state的管理
-```
+```js
   resetStoreVm (store, state) {
     const oldVm = store._vm;
     // 注册
@@ -215,7 +215,7 @@ export default class ModuleCollection {
 这样很好的利用Vue原有的数据响应系统实现响应式的state，赋新值之后会把老的实例注销。<br>
 对于state的包装实际还差一步，我们平常访问state的时候是直接通过store.state访问的，如果不做处理
 现在我们只能通过store._vm.data.$$state来访问，实际vuex通过class的get，set属性实现state的访问和更新的
-```
+```js
 export class Store {
   get state () {
     return this._vm._data.$$state;
@@ -233,7 +233,7 @@ export class Store {
 ### 事件注册
 接下去终于要步入commit原理的核心了，发布-订阅模式包含两个步骤，事件订阅和事件发布，首先来谈谈vuex是
 如何实现订阅过程的
-```
+```js
 export class Store {
   constructor (options = {}) {
     // 声明属性
@@ -259,10 +259,11 @@ export class Store {
       handler.call(store, local.state, payload);
     });
   }
+}
 ```
 我们只截取相关的部分代码，其中两个关键的方法installModule和registerMutation,在installModule
 方法中会先进行一次惰性求值，获取store中各个值的最新状态
-```
+```js
  makeLocalContext (store, path) {
     const local = {};
     Object.defineProperties(local, {
@@ -292,7 +293,7 @@ makeLocalContext返回一个local对象，其中保存着state的最新值，get
 ### 事件发布
 根据事件注册后this._mutations的结构，我们可以很轻动的实现事件发布，找到指定类型的事件队列，
 遍历这个队列，传入参数并执行。
-```
+```js
 // 触发对应type的mutation
   commit (_type, _payload, _options) {
     // 获取参数
@@ -308,7 +309,7 @@ makeLocalContext返回一个local对象，其中保存着state的最新值，get
   }
 ```
 但是需要注意的是，首先需要对参数进行下处理，就是unifyObjectStyle干的事情
-```
+```js
 // 入参规则：type可以是带type属性的对象，也可以是字符串
 function unifyObjectStyle (type, payload, options) {
   if (isObject(type)) {
@@ -327,7 +328,7 @@ function unifyObjectStyle (type, payload, options) {
 ##三、action和dispatch原理
 ### 用法
 定义一个action
-```
+```js
 add ({ commit }, number) {
       return new Promise((resolve, reject) => {
         setTimeout(() => {
@@ -339,7 +340,7 @@ add ({ commit }, number) {
     }
 ```
 触发action
-```
+```js
  this.$store.dispatch("add", 4).then((data) => {
           console.log(data);
         });
@@ -358,7 +359,7 @@ add ({ commit }, number) {
 
 #### 注册
 首先我们定义一个实例属性_actions,用于存放事件队列
-```
+```js
 constructor (options = {}) {
     // ...
     this._actions = Object.create(null);
@@ -366,7 +367,7 @@ constructor (options = {}) {
   }
 ```
 接着在module类中定义一个实例方法forEachActions,用于遍历执行actions
-```
+```js
 export default class Module {
   // ...
   forEachAction (fn) {
@@ -378,7 +379,7 @@ export default class Module {
 }
 ```
 然后在installModule时期去遍历actions,注册事件队列
-```
+```js
 installModule (store, state, path, module) {
     // ...
     module.forEachAction((action, key) => {
@@ -388,7 +389,7 @@ installModule (store, state, path, module) {
   }
 ```
 注册
-```
+```js
 registerAction (store, type, handler, local) {
     const entry = this._actions[type] || (this._actions[type] = []);
     entry.push(function WrappedActionHandler (payload, cb) {
@@ -413,7 +414,7 @@ registerAction (store, type, handler, local) {
 ，第二，事件返回的值始终是一个promise。
 
 #### 发布
-```
+```js
 dispatch (_type, _payload) {
     const {
       type,
@@ -437,7 +438,7 @@ dispatch (_type, _payload) {
 ##getters原理
 ### getters的用法
 在store实例化时我们定义如下几个选项：
-```
+```js
 const store = new Vuex.Store({
   state: { count: 1 },
   getters: {
@@ -647,7 +648,7 @@ const store = new Vuex.Store({
 而对于mapMutations和mapActions而言，返回对象中的函数，将执行commit（[key],payload），或者dispatch（[key],payload）
 这就是这几个方法的简单原理，接下去将一个个分析vuex中的实现
 
-### mapState
+### mapState和mapGetters
 ```js
 export const mapState = function (states) {
   // 定义一个返回结果map
@@ -670,7 +671,7 @@ export const mapState = function (states) {
 };
 ```
 首先看mapsState最终的返回值res是一个对象，传入的参数是我们想要map出来的几个属性，mapState可以传入一个
-字符串数组或者是对象数组，字符串数组中包含的是引用的属性，对象数组包含的输使用值与引用的映射，这两种
+字符串数组或者是对象数组，字符串数组中包含的是引用的属性，对象数组包含的是使用值与引用的映射，这两种
 形式的传参，我们需要通过normalizeMap进行规范化，统一返回一个对象数组
 ```js
 function normalizeMap (map) {
@@ -681,4 +682,63 @@ function normalizeMap (map) {
 ```
 normalizeMap函数首先判断传入的值是否为数组，若是，则返回一个key和val都为数组元素的对象数组，如果不是数组，
 则判断传入值为一个对象，接着遍历该对象，返回一个以对象键值为key和val值的对象数组。此时通过normalizeMap之后
-的map都将是一个对象数组。
+的map都将是一个对象数组。<br>
+接着遍历规范化之后的数组，对返回值对象进行赋值，赋值函数执行后返回state对应key的值
+如果传入值为一个函数，则将getters和state作为参数传入并执行，最终返回该对象，这样在computed属性中展开后
+就能直接通过key来引用对应state的值了。<br>
+mapGetters与mapState的实现原理基本一致
+```js
+export const mapGetters = function (getters) {
+  const res = {};
+  normalizeMap(getters)
+    .forEach(({ key, val }) => {
+      res[key] = function mappedGetter () {
+        return this.$store.getters[val];
+      };
+    });
+
+  return res;
+};
+```
+###mapActions和mapMutations
+```js
+export const mapActions = function (actions) {
+  const res = {};
+  normalizeMap(actions)
+    .forEach(({ key, val }) => {
+      res[key] = function (...args) {
+        const dispatch = this.$store.dispatch;
+
+        return typeof val === "function"
+          ? val.apply(this, [dispatch].concat(args))
+          : dispatch.apply(this, [val].concat(args));
+      };
+    });
+
+  return res;
+};
+```
+mapActions执行后也将返回一个对象，对象的key用于组件中引用，对象中value为一个函数，该函数传参是dispatch执行
+时的payload，其中val如果不是一个函数，则判断其为actionType通过dispath(actionType,payload)来触发对应的action
+如果传入的参数为一个函数则将dispatch和payload作为参数传入并执行，这样可以实现在mapAction时组合调用多个action，或者
+自定义一些其他行为。最终返回该对象，在组件的methods属性中展开后，可以通过调用key对应的函数来触发action。<br>
+mapMutation的实现原理与mapActions大同小异
+```js
+export const mapMutations = function (mutations) {
+  const res = {};
+  normalizeMap(mutations)
+    .forEach(({ key, val }) => {
+      res[key] = function mappedMutation (...args) {
+        const commit = this.$store.commit;
+
+        return typeof val === "function"
+          ? val.apply(this, [commit].concat(args))
+          : commit.apply(this, [val].concat(args));
+      };
+    });
+
+  return res;
+};
+```
+
+
