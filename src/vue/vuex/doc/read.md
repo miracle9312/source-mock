@@ -187,7 +187,7 @@ export default class ModuleCollection {
 }
 ```
 经过这样一系列的封装，this._modules属性就是下面这样的数据结构
-<img style="margin: auto;display: block;" src="./images/commit-modules.jpg" width="500px" height="250px" /> 
+<img style="margin: auto;display: block;" src="./images/commit-modules.jpg" width="500px" height="250px"/> 
 
 ### state
 由于mutations中保存的所有事件都是为了按一定规则改变state，所以我们要先介绍下store是如何进行state的管理的
@@ -287,8 +287,7 @@ makeLocalContext返回一个local对象，其中保存着state的最新值，get
 会介绍在得到这个保存着最新值的对象之后，接下来会遍历mutation并将mutation进行包装后push进指定类型的事件队列
 ，通过Moulde类的实例方法forEachMutation对mutations进行遍历，并执行registerMutation进行事件的注册，
 在registerMutation中返回this._mutations指定类型的事件队列，注册事件后的this._mutations的数据结构如下
-![](./images/commit-mutations.jpg)
-
+<img style="margin: auto;display: block;" src="./images/commit-mutations.jpg" width="500px" height="250px"/> 
 
 ### 事件发布
 根据事件注册后this._mutations的结构，我们可以很轻动的实现事件发布，找到指定类型的事件队列，
