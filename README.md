@@ -10,4 +10,4 @@
 - [vuex](https://github.com/miracle9312/source-mock/blob/master/src/vue/vuex/doc/read.md)
 
 ## javasript设计模式
-- [js pattern] (https://github.com/miracle9312/source-mock/blob/master/src/basic/js-pattern.md)
+- [js pattern](https://github.com/miracle9312/source-mock/blob/master/src/basic/js-pattern.md)
