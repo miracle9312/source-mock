@@ -187,8 +187,7 @@ export default class ModuleCollection {
 }
 ```
 经过这样一系列的封装，this._modules属性就是下面这样的数据结构
-<img src="./images/commit-modules.jpg" width="100px" height="50px" /> 
-![](./images/commit-modules.jpg)
+<img style="margin: auto;display: block;" src="./images/commit-modules.jpg" width="500px" height="250px" /> 
 
 ### state
 由于mutations中保存的所有事件都是为了按一定规则改变state，所以我们要先介绍下store是如何进行state的管理的
