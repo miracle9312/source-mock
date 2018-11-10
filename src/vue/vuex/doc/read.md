@@ -187,7 +187,7 @@ export default class ModuleCollection {
 }
 ```
 经过这样一系列的封装，this._modules属性就是下面这样的数据结构
-<img src="./images/commit-modules.jpg"/ width="100px" height="50px"> 
+<img src="./images/commit-modules.jpg" width="100px" height="50px" /> 
 ![](./images/commit-modules.jpg)
 
 ### state
