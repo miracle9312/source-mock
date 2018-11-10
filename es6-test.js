@@ -42,3 +42,22 @@ var pipe = function(value) {
 };
 
 console.log(pipe(3).sqrt.double.add.get);
+
+
+//多态
+function Obama(){}
+Obama.prototype.sayHello = function(){
+  console.log('hello');
+}
+
+function Xijinping(){};
+Xijinping.prototype.sayHello = function(){
+  console.log('你好');
+}
+
+function sayHi(leader){
+  leader.sayHello();
+}
+
+sayHi(new Obama(),'多态');
+sayHi(new Xijinping(), '多态');
