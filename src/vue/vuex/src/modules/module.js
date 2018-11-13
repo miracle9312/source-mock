@@ -38,4 +38,8 @@ export default class Module {
       forEachValue(this._rawModule.getters, fn);
     }
   }
+
+  forEachChild (fn) {
+    forEachValue(this._children, fn);
+  }
 }

@@ -29,6 +29,16 @@ const store = new Vuex.Store({
         }, 1000);
       });
     }
+  },
+  modules: {
+    a: {
+      state: { countA: 9 },
+      getters: {
+        sqrt (state, getters) {
+          return Math.sqrt(state.count);
+        }
+      }
+    }
   }
 });
 

@@ -11,6 +11,7 @@ export class Store {
     this._actions = Object.create(null);
     this._modules = new ModuleCollection(options);
     this._wrappedGetters = Object.create(null);
+    this._modulesNamespaceMap = Object.create(null);
     // 声明发布函数
     const store = this;
     const { commit, dispatch } = this;
@@ -39,6 +40,12 @@ export class Store {
   }
 
   installModule (store, state, path, module) {
+    // 获取namespace
+    const namespace = store._modules.getNamespace(path);
+    // 注册namespacemap
+    if (module.namespaced) {
+      this._modulesNamespaceMap[namespace] = module;
+    }
     // 注册mutation事件队列
     const local = this.makeLocalContext(store, path);
     module.forEachMutation((mutation, key) => {
@@ -51,6 +58,10 @@ export class Store {
 
     module.forEachGetters((getter, key) => {
       this.registerGetter(store, key, getter, local);
+    });
+    // 递归安装模块
+    module.forEachChild((child, key) => {
+      this.installModule(store, state, path.concat(key), module);
     });
   }
 

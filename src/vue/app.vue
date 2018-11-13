@@ -11,6 +11,9 @@
   import vuex from "./vuex/src";
   export default {
     name: "app",
+    created () {
+      console.log(this.$store);
+    },
     computed: {
       ...vuex.mapState(["count"]),
       ...vuex.mapGetters(["square"])
