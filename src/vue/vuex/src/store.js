@@ -47,7 +47,8 @@ export class Store {
       this._modulesNamespaceMap[namespace] = module;
     }
     // 注册mutation事件队列
-    const local = this.makeLocalContext(store, path);
+    const local = this.makeLocalContext(store, namespace, path);
+
     module.forEachMutation((mutation, key) => {
       this.registerMutation(store, key, mutation, local);
     });
@@ -126,7 +127,8 @@ export class Store {
   }
 
   // 惰性赋值，每次获取最新的module值 todo
-  makeLocalContext (store, path) {
+  makeLocalContext (store, namespace, path) {
+    const noNamespace = namespace === "";
     const local = {
       dispatch: store.dispatch,
       commit: store.commit
