@@ -740,4 +740,15 @@ export const mapMutations = function (mutations) {
 };
 ```
 
+## module
+
+### 构造localContext
+
+获取路径对应的命名空间（namespaced=true时拼上）->存至_moduleNamespaceMap->state拼接到store.state上使其成为一个基于path的嵌套结构->注册localContext
+注册localContext
+* Dispatch:namespace->扁平化参数->无root条件直接触发namespace+type->有root或hot条件，触发type
+* commit->扁平化参数->无root条件直接触发namespace+type->有root或hot条件，触发type
+* State:根据path查找state
+* Getters:声明代理对象，遍历store.getters对象，匹配key和namespace,命中后将其localType指向全路径
+
 

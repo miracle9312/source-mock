@@ -39,7 +39,7 @@ export class Store {
     }
   }
 
-  installModule (store, state, path, module) {
+  installModule (store, state, path, module, hot) {
     // 获取namespace
     const namespace = store._modules.getNamespace(path);
     // 注册namespacemap
@@ -47,7 +47,7 @@ export class Store {
       this._modulesNamespaceMap[namespace] = module;
     }
     // 注册mutation事件队列
-    const local = this.makeLocalContext(store, namespace, path);
+    const local = makeLocalContext(store, namespace, path, hot);
 
     module.forEachMutation((mutation, key) => {
       this.registerMutation(store, key, mutation, local);
@@ -62,7 +62,7 @@ export class Store {
     });
     // 递归安装模块
     module.forEachChild((child, key) => {
-      this.installModule(store, state, path.concat(key), module);
+      this.installModule(store, state, path.concat(key), child, hot);
     });
   }
 
@@ -124,26 +124,6 @@ export class Store {
         store.getters
       );
     };
-  }
-
-  // 惰性赋值，每次获取最新的module值 todo
-  makeLocalContext (store, namespace, path) {
-    const noNamespace = namespace === "";
-    const local = {
-      dispatch: store.dispatch,
-      commit: store.commit
-    };
-
-    Object.defineProperties(local, {
-      state: {
-        get: () => getNestedState(store.state, path)
-      },
-      getter: {
-        get: () => store.getters
-      }
-    });
-
-    return local;
   }
 
   // 触发对应type的mutation
@@ -217,4 +197,51 @@ export function install (_Vue) {
   Vue = _Vue;
   // 开始注册全局mixin
   applyMixin(Vue);
+}
+
+// 惰性赋值，每次获取最新的module值 todo
+function makeLocalContext (store, namespace, path, hot) {
+  const noNamespace = namespace === "";
+  const local = {
+    dispatch: noNamespace ? store.dispatch : (_type, _payload, _options) => {
+        const args = unifyObjectStyle(_type, _payload, _options);
+        let { type } = args;
+        const { payload, options } = args;
+        if (!hot && !options.root) {
+          type = namespace + type;
+        }
+        store.dispatch(type, payload, options);
+      },
+    commit: noNamespace ? store.commit : (_type, _payload, _options) => {
+        const args = unifyObjectStyle(_type, _payload, _options);
+        let { type } = args;
+        const { payload, options } = args;
+        if (!hot && !options.root) {
+          type = namespace + type;
+        }
+        store.commit(type, payload, options);
+      }
+  };
+
+  Object.defineProperties(local, {
+    state: {
+      get: () => getNestedState(store.state, path)
+    },
+    getter: {
+      get: noNamespace
+        ? () => store.getters
+        : () => makeLocalGetters(store, namespace)
+    }
+  });
+
+  return local;
+}
+
+function makeLocalGetters (store, namespace) {
+  const getterProxy = {};
+  Object.keys(store.getters).forEach((type)=>{
+    // 匹配namesape
+    // 代理local至namespace全局
+  })
+  // 返回代理对象
 }
