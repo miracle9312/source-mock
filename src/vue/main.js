@@ -32,10 +32,21 @@ const store = new Vuex.Store({
   },
   modules: {
     a: {
+      namespaced: true,
       state: { countA: 9 },
       getters: {
-        sqrt (state, getters) {
-          return Math.sqrt(state.count);
+        sqrt (state) {
+          return Math.sqrt(state.countA);
+        }
+      },
+      mutations: {
+        miner (state, payload) {
+          state.countA -= payload;
+        }
+      },
+      actions: {
+        miner (context) {
+          console.log(context);
         }
       }
     }

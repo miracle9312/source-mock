@@ -12,6 +12,17 @@ export default class ModuleCollection {
     return path.reduce((module, key) => module.getChild(key), this.root);
   }
 
+  // 根据路径返回namespace
+  getNamespace (path) {
+    let module = this.root;
+
+    return path.reduce((namespace, key) => {
+      module = module.getChild(key);
+
+      return namespace + (module.namespaced ? `${key}/` : "");
+    }, "");
+  }
+
   // 1.todo runtime的作用？
   register (path, rawModule, runtime = true) {
     // 生成module

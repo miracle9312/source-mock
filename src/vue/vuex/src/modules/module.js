@@ -11,6 +11,10 @@ export default class Module {
     this.state = typeof rawState === "function" ? rawState() : rawState;
   }
 
+  get namespaced () {
+    return Boolean(this._rawModule.namespaced);
+  }
+
   getChild (key) {
     return this._children[key];
   }

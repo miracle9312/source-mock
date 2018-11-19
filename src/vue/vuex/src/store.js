@@ -50,7 +50,7 @@ export class Store {
     // 构造嵌套state
     if (!isRoot && !hot) {
       const moduleName = path[path.length - 1];
-      const parentState = getNestedState(store.state, path.slice(0, -1));
+      const parentState = getNestedState(state, path.slice(0, -1));
       Vue.set(parentState, moduleName, module.state);
     }
     // 注册mutation事件队列
@@ -68,7 +68,8 @@ export class Store {
     });
 
     module.forEachGetters((getter, key) => {
-      this.registerGetter(store, key, getter, local);
+      const namespacedType = namespace + key
+      this.registerGetter(store, namespacedType, getter, local);
     });
     // 递归安装模块
     module.forEachChild((child, key) => {
@@ -100,6 +101,8 @@ export class Store {
         dispatch: local.dispatch,
         commit: local.commit,
         state: local.state,
+        getters: local.getters,
+        rootGetters: store.getters,
         rootState: store.state
       }, payload, cb);
       // 默认action中返回promise，如果不是则将返回值包装在promise中
@@ -219,7 +222,7 @@ function makeLocalContext (store, namespace, path) {
         const args = unifyObjectStyle(_type, _payload, _options);
         let { type } = args;
         const { payload, options } = args;
-        if (options && !options.root) {
+        if (!options || !options.root) {
           type = namespace + type;
         }
         store.dispatch(type, payload, options);
@@ -230,7 +233,7 @@ function makeLocalContext (store, namespace, path) {
         const args = unifyObjectStyle(_type, _payload, _options);
         let { type } = args;
         const { payload, options } = args;
-        if (options && !options.root) {
+        if (!options || !options.root) {
           type = namespace + type;
         }
         store.commit(type, payload, options);
@@ -241,7 +244,7 @@ function makeLocalContext (store, namespace, path) {
     state: {
       get: () => getNestedState(store.state, path)
     },
-    getter: {
+    getters: {
       get: noNamespace
         ? () => store.getters
         : () => makeLocalGetters(store, namespace)
@@ -256,9 +259,9 @@ function makeLocalGetters (store, namespace) {
   const splitPos = namespace.length;
   Object.keys(store.getters)
     .forEach((type) => {
-      // 匹配namesape
-      if (!type.slice(0, splitPos) === namespace) return
-      const localType = type.slice(splitPos, -1);
+      // 匹配namespace
+      if (type.slice(0, splitPos) !== namespace) return
+      const localType = type.slice(splitPos);
       // 代理local至namespace全局
       Object.defineProperty(gettersProxy, localType, {
         get: () => store.getters[type],

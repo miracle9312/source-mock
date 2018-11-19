@@ -741,6 +741,12 @@ export const mapMutations = function (mutations) {
 ```
 
 ## module
+为了方便进行store中不同功能的切分，在vuex中可以将不同功能组装成一个单独的模块，模块内部可以
+单独管理state，也可以访问到全局状态。
+### 用法
+
+### 构造嵌套的module结构
+
 
 ### 构造localContext
 
