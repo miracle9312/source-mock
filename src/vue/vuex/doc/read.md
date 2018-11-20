@@ -744,9 +744,85 @@ export const mapMutations = function (mutations) {
 为了方便进行store中不同功能的切分，在vuex中可以将不同功能组装成一个单独的模块，模块内部可以
 单独管理state，也可以访问到全局状态。
 ### 用法
+```js
+// main.js
+const store = new Vuex.Store({
+  state: {},
+  getters: {},
+  mutations: {},
+  actions: {},
+  modules: {
+    a: {
+      namespaced: true,
+      state: { countA: 9 },
+      getters: {
+        sqrt (state) {
+          return Math.sqrt(state.countA);
+        }
+      },
+      mutations: {
+        miner (state, payload) {
+          state.countA -= payload;
+        }
+      },
+      actions: {
+        miner (context) {
+          console.log(context);
+        }
+      }
+    }
+  }
+});
+```
+```vue
+//app.vue
+<template>
+    <div>
+        <div>moduleSqrt:{{sqrt}}</div>
+        <div>moduleCount:{{countA}}</div>
+        <button @click="miner(1)">modMutAdd</button>
+    </div>
+</template>
+
+<script>
+  import vuex from "./vuex/src";
+  export default {
+    name: "app",
+    created () {
+      console.log(this.$store);
+    },
+    computed: {
+      ...vuex.mapGetters("a", ["sqrt"]),
+      ...vuex.mapState("a", ["countA"])
+    },
+    methods: {
+      ...vuex.mapMutations("a", ["miner"])
+    }
+  };
+</script>
+
+<style scoped>
+
+</style>
+```
+上述代码中，我们定义了一个key为a的module，将其namespaced设置成了true，对于namespace=false的模块，它将自动继承
+父模块的命名空间。对于模块a，他有一下几点特性
+- 拥有自己独立的state
+- getters和actions中能够访问到state,getters，rootState, rootGetters
+- mutations中只能改变模块中的state
+
+根据以上特性，可以将之后的module的实现分为几个部分
+- 用什么样的数据格式存放module
+- 如何创建一个模块的context，实现state，commit, dispatch， getters的封装，并且让commit只改变内部的state，另外让模块中的
+getters，dispatch保持对根模块的可访问性
+- 如何进行模块中getters, mutations, actions的注册，让其与namespace进行绑定
+- 辅助方法该如何去找到namespace下getters，mutations和actions,并将其注入组件中
 
 ### 构造嵌套的module结构
-
+vuex最后构造出的module是这样的一种嵌套的结构
+<img style="margin: auto;display: block;" src="./images/modules.jpg" width="500px" height="250px"/> 
+第一级是一个root，之后的的每一级都有一个_rawModule和_children属性，分别存放自身的getters，mutations和actions和
+子级。实现这样的数据结构用一个简单的递归便可以完成
 
 ### 构造localContext
 

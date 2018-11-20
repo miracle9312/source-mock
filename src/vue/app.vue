@@ -16,7 +16,6 @@
   export default {
     name: "app",
     created () {
-      console.log(this);
       console.log(this.$store);
     },
     computed: {
