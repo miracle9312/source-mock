@@ -823,9 +823,91 @@ vuex最后构造出的module是这样的一种嵌套的结构
 <img style="margin: auto;display: block;" src="./images/modules.jpg" width="500px" height="250px"/> 
 第一级是一个root，之后的的每一级都有一个_rawModule和_children属性，分别存放自身的getters，mutations和actions和
 子级。实现这样的数据结构用一个简单的递归便可以完成
+首先是我们的入参，大概是如下的结构
+```js
+{
+  state: {},
+  getters: {},
+  mutations: {},
+  actions: {},
+  modules: {
+    a: {
+      namespaced: true,
+      state: {},
+      getters: {},
+      mutations: {},
+      actions: {}
+    },
+    b: {
+        namespaced: true,
+        state: {},
+        getters: {},
+        mutations: {},
+        actions: {}
+    }
+  }
+}
+```
+我们会在store的构造函数中将这个对象作为ModuleCollection实例化的参数
+```js
+export class Store {
+  constructor (options = {}) {
+    this._modules = new ModuleCollection(options);
+  }
+}
+```
+所有的嵌套结构的构造都在ModuleCollection实例化的过程中进行
+```js
+// module-collection.js
+export default class ModuleCollection {
+  constructor (rawRootModule) {
+    // 注册根module，入参：path,module,runtime
+    this.register([], rawRootModule, false);
+  }
+
+  // 根据路径获取模块，从root开始搜索
+  get (path) {
+    return path.reduce((module, key) => module.getChild(key), this.root);
+  }
+
+  // 1.todo runtime的作用？
+  register (path, rawModule, runtime = true) {
+    // 生成module
+    const newModule = new Module(rawModule, runtime);
+    if (path.length === 0) { // 根模块，注册在root上
+      this.root = newModule;
+    } else { // 非根模块，获取父模块，挂载
+      const parent = this.get(path.slice(0, -1));
+      parent.addChild(path[path.length - 1], newModule);
+    }
+
+    // 模块上是否含有子模块，有则注册子模块
+    if (rawModule.modules) {
+      forEachValue(rawModule.modules, (newRawModule, key) => {
+        this.register(path.concat(key), newRawModule, runtime);
+      });
+    }
+  }
+}
+```
+```js
+// module.js
+export default class Module {
+  addChild (key, module) {
+    this._children[key] = module;
+  }
+}
+```
+实例化时首先会执行register函数，在register函数中根据传入的rawModule创建一个Module的实例
+然后根据注册的路径判断是否为根模块，如果是，则将该module实例挂载在root属性上，如果不是则通过get方法
+找到该模块的父模块，将其通过模块的addChild方法挂载在父模块的_children属性上，最后判断该模块是否
+含有嵌套模块，如果有则遍历嵌套模块，递归执行register方法，这样就能构造如上图所示的嵌套模块结构了。
+有了以上这样的结构，我们可以用reduce方法通过path来获取指定路径下的模块，也可以用递归的方式对所有的
+模块进行统一的操作，大大方便了模块的管理。
 
 ### 构造localContext
-
+有了基本的模块结构后，下面的问题就是如何进行模块作用域的封装了，让每个模块有自己的state并且对于这个state
+有自己管理这个state的方法，并且我们希望这些方法也能够访问到全局的一些属性。
 获取路径对应的命名空间（namespaced=true时拼上）->存至_moduleNamespaceMap->state拼接到store.state上使其成为一个基于path的嵌套结构->注册localContext
 注册localContext
 * Dispatch:namespace->扁平化参数->无root条件直接触发namespace+type->有root或hot条件，触发type
