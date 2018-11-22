@@ -907,7 +907,43 @@ export default class Module {
 
 ### 构造localContext
 有了基本的模块结构后，下面的问题就是如何进行模块作用域的封装了，让每个模块有自己的state并且对于这个state
-有自己管理这个state的方法，并且我们希望这些方法也能够访问到全局的一些属性。
+有自己管理这个state的方法，并且我们希望这些方法也能够访问到全局的一些属性。<br>
+总结一下现在我们要做的事情，
+```js
+//state
+{
+   "key": "any"
+   "namespace1": {
+       "key": "any",
+       "namespace2": {}
+   } 
+}
+// actions
+{
+  "key": function () {},
+  "namespace1/key": function () {},
+  "namespace1/namespace2/key": function () {}
+}
+// getters
+{
+  "key": function () {},
+  "namespace1/key": function () {},
+  "namespace1/namespace2/key": function () {}
+}
+// mutations
+{
+    "key": function () {},
+    "namespace1/key": function () {},
+    "namespace1/namespace2/key": function () {}
+}
+```
+```js
+{
+    modules:{
+        
+    }
+}
+```
 获取路径对应的命名空间（namespaced=true时拼上）->存至_moduleNamespaceMap->state拼接到store.state上使其成为一个基于path的嵌套结构->注册localContext
 注册localContext
 * Dispatch:namespace->扁平化参数->无root条件直接触发namespace+type->有root或hot条件，触发type
