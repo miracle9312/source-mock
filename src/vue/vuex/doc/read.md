@@ -941,6 +941,7 @@ export default class Module {
     }
 }
 ```
+
 在namespaced=true的模块中，访问到的state,getters都是自模块内部的state和getters,只有rootState,以及rootGetters指向
 根模块的state和getters；另外，在模块中commit触发的都是子模块内部的mutations，dispatch触发的都是子模块内部的actions。
 在vuex中通过路径匹配去实现这种封装。
