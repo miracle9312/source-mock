@@ -910,38 +910,68 @@ export default class Module {
 有自己管理这个state的方法，并且我们希望这些方法也能够访问到全局的一些属性。<br>
 总结一下现在我们要做的事情，
 ```js
+// module
+{
+    state: {},
+    getters: {}
+    ...
+    modules:{
+        n1:{
+            namespaced: true,
+            getters: {
+                g(state, rootState) {
+                    state.s // => state.n1.s
+                    rootState.s // => state.s
+                }
+            },
+            mutations: {
+                m(state) {
+                    state.s // => state.n1.s
+                }
+            },
+            actions: {
+                a({state, getters, commit, dispatch}) {
+                    commit("m"); // => mutations["n1/m"]
+                    dispatch("a1"); // => actions["n1/a1"]
+                    getters.g // => getters["n1/g"]
+                },
+                a1(){}
+            }
+        }
+    }
+}
+```
+在namespaced=true的模块中，访问到的state,getters都是自模块内部的state和getters,只有rootState,以及rootGetters指向
+根模块的state和getters；另外，在模块中commit触发的都是子模块内部的mutations，dispatch触发的都是子模块内部的actions。
+在vuex中通过路径匹配去实现这种封装。
+```js
 //state
 {
-   "key": "any"
-   "namespace1": {
-       "key": "any",
-       "namespace2": {}
+   "s": "any"
+   "n1": {
+       "s": "any",
+       "n2": {
+           "s": "any"
+       }
    } 
-}
-// actions
-{
-  "key": function () {},
-  "namespace1/key": function () {},
-  "namespace1/namespace2/key": function () {}
 }
 // getters
 {
-  "key": function () {},
-  "namespace1/key": function () {},
-  "namespace1/namespace2/key": function () {}
+  "g": function () {},
+  "n1/g": function () {},
+  "n1/n2/g": function () {}
 }
 // mutations
 {
-    "key": function () {},
-    "namespace1/key": function () {},
-    "namespace1/namespace2/key": function () {}
+    "m": function () {},
+    "n1/m": function () {},
+    "n1/n2/m": function () {}
 }
-```
-```js
+// actions
 {
-    modules:{
-        
-    }
+  "a": function () {},
+  "n1/a": function () {},
+  "n1/n2/a": function () {}
 }
 ```
 获取路径对应的命名空间（namespaced=true时拼上）->存至_moduleNamespaceMap->state拼接到store.state上使其成为一个基于path的嵌套结构->注册localContext
