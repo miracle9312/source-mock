@@ -324,7 +324,7 @@ function unifyObjectStyle (type, payload, options) {
 参数就变成了type，第三个参数变成了payload。<br>
 到此关于commit的原理已经介绍完毕，所有的代码见分支 https://github.com/miracle9312/source-mock/tree/fc1a7cd448d0c22079a1414004fdb1babb90f3b8
 
-##三、action和dispatch原理
+## 三、action和dispatch原理
 ### 用法
 定义一个action
 ```js
