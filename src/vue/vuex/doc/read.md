@@ -19,7 +19,7 @@ props的传递会带来增加冗余代码的问题，中间一些不需特定数
 当代码充斥着各种provided和inject时，杂乱的根本不知道组件inject的数据是在哪里provide进来的。
 vuex将一些公用数据抽离并统一管理后，直接让这种复杂的数据传递变得毫不费力。
 ## 一 install
-为了实现通过Vue.use()方法引入vuex，需要为vuex定义一个install方法。vuex中的intall方法主要作用是将store实例注入到每一个vue实例中，具体实现方式如下
+为了实现通过Vue.use()方法引入vuex，需要为vuex定义一个install方法。vuex中的intall方法主要作用是将store实例注入到每一个vue组件中，具体实现方式如下
 ```js
 export function install (_Vue) {
   // 避免重复安装
@@ -68,7 +68,7 @@ export default function (Vue) {
 }
 ```
 首先看这段代码核心逻辑实现的关键函数vuexInit，该函数首先判断this.$options选项（该选项在根实例实例化时传入new Vue(options:Object)）
-中是否包含this.$store属性，如果有，则将实例的this.$store属性指向this.$options.$store,如果没有则指向this.$parent即父实例中的$store。
+中是否包含store属性，如果有，则将实例的this.$store属性指向this.$options.store,如果没有则指向this.$parent即父实例中的$store。
 此时我们在install执行后，通过在实例化根组件时把store传入options就能将所有子组件的$store属性都指向这个store了。
 ```js
 new Vue({
@@ -82,7 +82,7 @@ new Vue({
 - 将store注入到所有vue的实例属性$store中
 
 ## 二、如何实现一个简单的commit
-commit实际上就是一个比较简单的发布-订阅模式的实现，不过这个过程中会涉及module的实现，state响应式的实现方式，为之后介绍action可以做一些铺垫
+commit实际上就是一个比较简单的发布-订阅模式的实现，不过这个过程中会涉及module的实现，state响应式的实现方式，为之后介绍actions可以做一些铺垫
 ### 使用
 首先回顾下commit的使用
 ```js
@@ -152,7 +152,7 @@ export class Store {
     this.resetStoreVm(this, state);
   }
 ```
-首先是三个实例属性_mutations是发布订阅模式中的事件队列，_modules属性用来封装传入的options
+首先是三个实例属性_mutations是发布订阅模式中的事件队列，_modules属性用来封装传入的options:{state, getters, mutations, actions}
 为其提供一些基础的操作方法，commit方法用来触发事件队列中相应的事件；然后我们会在installModule
 中注册事件队列，在resetStoreVm中实现一个响应式的state。
 
@@ -211,7 +211,7 @@ export default class ModuleCollection {
 ### state
 由于mutations中保存的所有事件都是为了按一定规则改变state，所以我们要先介绍下store是如何进行state的管理的
 尤其是如何通过state的改变响应式的改变getters中的值，在构造函数中提到过一个方法resetStoreVm，在这个函数中
-会进行state的管理
+会实现state和getters的响应式关系
 ```js
   resetStoreVm (store, state) {
     const oldVm = store._vm;
@@ -247,7 +247,7 @@ export class Store {
   }
 }
 ```
-值得注意的是，我们不同直接对state进行赋值，而要通过store.replaceState赋值，否则将会报错
+值得注意的是，我们不能直接对state进行赋值，而要通过store.replaceState赋值，否则将会报错
 
 ### 事件注册
 接下去终于要步入commit原理的核心了，发布-订阅模式包含两个步骤，事件订阅和事件发布，首先来谈谈vuex是
@@ -301,15 +301,11 @@ export class Store {
   }
 ```
 makeLocalContext返回一个local对象，其中保存着state的最新值，getNestState会通过路径
-搜索得到嵌套对象的指定值，这个写法非常优雅，可以在以后的代码中多学习和运用。此外此时的local并不完整
-，完整的local包含state,getters,dispatch,commit,但是这部分我们只需要了解state,剩下的部分我们后续
-会介绍在得到这个保存着最新值的对象之后，接下来会遍历mutation并将mutation进行包装后push进指定类型的事件队列
-，通过Moulde类的实例方法forEachMutation对mutations进行遍历，并执行registerMutation进行事件的注册，
-在registerMutation中返回this._mutations指定类型的事件队列，注册事件后的this._mutations的数据结构如下
+搜索得到嵌套对象的指定值。此外此时的local并不完整，完整的local包含state,getters,dispatch,commit,但是这部分我们只需要了解state,剩下的部分我们后续会介绍在得到这个保存着最新值的对象之后，接下来会遍历mutation并将mutation进行包装后push进指定类型的事件队列，通过Moulde类的实例方法forEachMutation对mutations进行遍历，并执行registerMutation进行事件的注册，在registerMutation中返回this._mutations指定类型的事件队列，注册事件后的this._mutations的数据结构如下
 <img style="margin: auto;display: block;" src="./images/commit-mutations.jpg" width="500px" height="250px"/> 
 
 ### 事件发布
-根据事件注册后this._mutations的结构，我们可以很轻动的实现事件发布，找到指定类型的事件队列，
+根据事件注册后this._mutations的结构，我们可以很轻松的实现事件发布，找到指定类型的事件队列，
 遍历这个队列，传入参数并执行。
 ```js
 // 触发对应type的mutation
