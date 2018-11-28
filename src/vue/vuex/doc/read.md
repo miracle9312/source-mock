@@ -835,7 +835,7 @@ getters，dispatch保持对根模块的可访问性
 
 ### 构造嵌套的module结构
 vuex最后构造出的module是这样的一种嵌套的结构<br>
-<img style="margin: auto;display: block;" src="./images/modules.jpg" width="500px" height="250px"/> 
+<img style="margin: auto;display: block;" src="./images/modules.jpg" width="500px" height="250px"/><br>
 第一级是一个root，之后的的每一级都有一个_rawModule和_children属性，分别存放自身的getters，mutations和actions和
 子级。实现这样的数据结构用一个简单的递归便可以完成
 首先是我们的入参，大概是如下的结构
