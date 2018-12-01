@@ -408,7 +408,7 @@ dispatch (_type, _payload) {
 这样我们就可以通过dispatch(type, payload).then(data=>{})得到异步执行的结果，此外事件队列中的事件
 触发通过promise.all实现，两个目标都已经达成。
 
-##getters原理
+## getters原理
 ### getters的用法
 在store实例化时我们定义如下几个选项：
 ```js
