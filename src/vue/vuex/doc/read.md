@@ -15,9 +15,8 @@ getters以state作为基础，进行不同形式的数据的构造，当state发
 所有的组件共享一个state，有了vuex我们的关注从事件转移到了数据，我们可以只关心哪些组件引用了状态中的某个值，devtools实时反应
 state的当前状态，让调试变得简单。另外组件间的通信，从订阅同一个事件，转移到了共享同一个数据，变得更加简易。
 - 解决父子组件间数据传递问题，在vue的开发中我们会通过props或者inject去实现父子组件的数据传递，但是当组件层级过深时
-props的传递会带来增加冗余代码的问题，中间一些不需特定数据的组件为了进行数据传递会注入不必要的数据，而inject的数据传递本来就是由缺陷的
-当代码充斥着各种provided和inject时，杂乱的根本不知道组件inject的数据是在哪里provide进来的。
-vuex将一些公用数据抽离并统一管理后，直接让这种复杂的数据传递变得毫不费力。
+props的传递会带来增加冗余代码的问题，中间一些不需特定数据的组件为了进行数据传递会注入不必要的数据，而inject的数据传递本来就是有缺陷的
+当代码充斥着各种provided和inject时，杂乱的根本不知道组件inject的数据是在哪里provide进来的。vuex将一些公用数据抽离并统一管理后，直接让这种复杂的数据传递变得毫不费力。
 ## 一 install
 为了实现通过Vue.use()方法引入vuex，需要为vuex定义一个install方法。vuex中的intall方法主要作用是将store实例注入到每一个vue组件中，具体实现方式如下
 ```js
@@ -68,13 +67,13 @@ export default function (Vue) {
 }
 ```
 首先看这段代码核心逻辑实现的关键函数vuexInit，该函数首先判断this.$options选项（该选项在根实例实例化时传入new Vue(options:Object)）
-中是否包含store属性，如果有，则将实例的this.$store属性指向this.$options.store,如果没有则指向this.$parent即父实例中的$store。
-此时我们在install执行后，通过在实例化根组件时把store传入options就能将所有子组件的$store属性都指向这个store了。
 ```js
 new Vue({
   store
 })
 ```
+中是否包含store属性，如果有，则将实例的this.$store属性指向this.$options.store,如果没有则指向this.$parent即父实例中的$store。
+此时我们在install执行后，通过在实例化根组件时把store传入options就能将所有子组件的$store属性都指向这个store了。
 此外需要注意的时applyMixin执行时首先会判断当前Vue的版本号，版本2以上通过mixin混入的方式在所有组件实例化的时候执行vueInit，而
 版本2以下则通过options.init中插入执行的方式注入。以下时安装函数的几点总结
 - 避免重复安装
@@ -82,7 +81,7 @@ new Vue({
 - 将store注入到所有vue的实例属性$store中
 
 ## 二、如何实现一个简单的commit
-commit实际上就是一个比较简单的发布-订阅模式的实现，不过这个过程中会涉及module的实现，state响应式的实现方式，为之后介绍actions可以做一些铺垫
+commit实际上就是一个比较简单的发布-订阅模式的实现，不过这个过程中会涉及module的实现，state与getters之间响应式的实现方式，并为之后介绍actions可以做一些铺垫
 ### 使用
 首先回顾下commit的使用
 ```js
@@ -96,8 +95,7 @@ const store = new Vuex.Store({
   }
 }); 
 ```
-实例化store时，参数中的mutation就是事件队列中的事件，每个事件传入两个参数，
-分别时state和payload,每个事件实现的都是根据payload改变state的值
+实例化store时，参数中的mutation就是事件队列中的事件，每个事件传入两个参数，分别时state和payload,每个事件实现的都是根据payload改变state的值
 ```vue
 <template>
     <div>
@@ -137,7 +135,7 @@ const store = new Vuex.Store({
 export class Store {
   constructor (options = {}) {
     // 声明属性
-    this._mutations = Object.create(null);// 为什么不直接赋值null
+    this._mutations = Object.create(null);
     this._modules = new ModuleCollection(options);
     // 声明发布函数
     const store = this;
@@ -156,16 +154,8 @@ export class Store {
 为其提供一些基础的操作方法，commit方法用来触发事件队列中相应的事件；然后我们会在installModule
 中注册事件队列，在resetStoreVm中实现一个响应式的state。
 
-> 问题 <br>
-- 为什么要把commit在构造函数中又重复定义一次<br>
-- _mutations为什么不直接复制null，而用Object.create(null)
-
 #### modules
-在实例化store时我们会传入一个对象参数，这里面包含state,mutations,actions,getters,modules等数据项
-我们需要对这些数据项进行封装，并暴露一个这个些数据项的操作方法，这就是Module类的作用，另外在vuex中
-有模块的划分，需要对这些modules进行管理，由此衍生出了ModuleCollection类，本节先专注于commit的实现
-对于模块划分会放在后面讨论，对于直接传入的state，mutations，actions，getters，在vuex中会
-先通过Module类进行包装，然后注册在ModuleCollection的root属性中
+在实例化store时我们会传入一个对象参数，这里面包含state,mutations,actions,getters,modules等数据项我们需要对这些数据项进行封装，并暴露一个这个些数据项的操作方法，这就是Module类的作用，另外在vuex中有模块的划分，需要对这些modules进行管理，由此衍生出了ModuleCollection类，本节先专注于commit的实现对于模块划分会放在后面讨论，对于直接传入的state，mutations，actions，getters，在vuex中会先通过Module类进行包装，然后注册在ModuleCollection的root属性中
 ```js
 export default class Module {
   constructor (rawModule, runtime) {
@@ -187,9 +177,7 @@ export function forEachValue (obj, fn) {
   Object.keys(obj).forEach((key) => fn(obj[key], key));
 }
 ```
-构造函数中传入的参数rawModule就是{state，mutations，actions，getters}对象,在Module类中
-定义两个属性_rawModule用于存放传入的rawModule,forEachMutation实现mutations的遍历执行，将mutation对象的
-value,key传入fn并执行，接下去将这个module挂在modulecollection的root属性上
+构造函数中传入的参数rawModule就是{state，mutations，actions，getters}对象,在Module类中定义两个属性_rawModule用于存放传入的rawModule,forEachMutation实现mutations的遍历执行，将mutation对象的value,key传入fn并执行，接下去将这个module挂在modulecollection的root属性上
 ```js
 export default class ModuleCollection {
   constructor (rawRootModule) {
@@ -205,7 +193,7 @@ export default class ModuleCollection {
   }
 }
 ```
-经过这样一系列的封装，this._modules属性就是下面这样的数据结构
+经过这样一系列的封装，this._modules属性就是下面这样的数据结构<br>
 <img style="margin: auto;display: block;" src="./images/commit-modules.jpg" width="500px" height="250px"/> 
 
 ### state
@@ -229,11 +217,8 @@ export default class ModuleCollection {
     }
   }
 ```
-这个函数传入两个参数，分别为实例本身和state，首先注册一个vue实例保存在store实例属性_vm上
-，其中data数据项中定义了$$state属性指向state，后面会介绍将getters分解并放在computed数据项中
-这样很好的利用Vue原有的数据响应系统实现响应式的state，赋新值之后会把老的实例注销。<br>
-对于state的包装实际还差一步，我们平常访问state的时候是直接通过store.state访问的，如果不做处理
-现在我们只能通过store._vm.data.$$state来访问，实际vuex通过class的get，set属性实现state的访问和更新的
+这个函数传入两个参数，分别为实例本身和state，首先注册一个vue实例保存在store实例属性_vm上，其中data数据项中定义了$$state属性指向state，后面会介绍将getters分解并放在computed数据项中这样很好的利用Vue原有的数据响应系统实现响应式的state，并且赋新值之后会把老的实例注销。<br>
+对于state的包装实际还差一步，我们平常访问state的时候是直接通过store.state访问的，如果不做处理现在我们只能通过store._vm.data.$$state来访问，实际vuex通过class的get，set属性实现state的访问和更新的
 ```js
 export class Store {
   get state () {
@@ -250,8 +235,7 @@ export class Store {
 值得注意的是，我们不能直接对state进行赋值，而要通过store.replaceState赋值，否则将会报错
 
 ### 事件注册
-接下去终于要步入commit原理的核心了，发布-订阅模式包含两个步骤，事件订阅和事件发布，首先来谈谈vuex是
-如何实现订阅过程的
+接下去终于要步入commit原理的核心了，发布-订阅模式包含两个步骤，事件订阅和事件发布，首先来谈谈vuex是如何实现订阅过程的
 ```js
 export class Store {
   constructor (options = {}) {
@@ -280,33 +264,11 @@ export class Store {
   }
 }
 ```
-我们只截取相关的部分代码，其中两个关键的方法installModule和registerMutation,在installModule
-方法中会先进行一次惰性求值，获取store中各个值的最新状态
-```js
- makeLocalContext (store, path) {
-    const local = {};
-    Object.defineProperties(local, {
-      state: {
-        get: () => getNestedState(store.state, path)
-      }
-    });
-
-    return local;
-  }
-  
-  function getNestedState (state, path) {
-    return path.length
-      ? path.reduce((state, key) => state[key], state)
-      : state;
-  }
-```
-makeLocalContext返回一个local对象，其中保存着state的最新值，getNestState会通过路径
-搜索得到嵌套对象的指定值。此外此时的local并不完整，完整的local包含state,getters,dispatch,commit,但是这部分我们只需要了解state,剩下的部分我们后续会介绍在得到这个保存着最新值的对象之后，接下来会遍历mutation并将mutation进行包装后push进指定类型的事件队列，通过Moulde类的实例方法forEachMutation对mutations进行遍历，并执行registerMutation进行事件的注册，在registerMutation中返回this._mutations指定类型的事件队列，注册事件后的this._mutations的数据结构如下
+我们只截取相关的部分代码，其中两个关键的方法installModule和registerMutation，我们在此处会省略一些关于模块封装的部分，此处的local可以简单的理解为一个{state，getters}对象，事件注册的大致过程就是遍历mutation并将mutation进行包装后push进指定类型的事件队列，首先通过Moulde类的实例方法forEachMutation对mutation进行遍历，并执行registerMutation进行事件的注册，在registerMutation中生成一个this._mutations指定类型的事件队列，注册事件后的this._mutations的数据结构如下
 <img style="margin: auto;display: block;" src="./images/commit-mutations.jpg" width="500px" height="250px"/> 
 
 ### 事件发布
-根据事件注册后this._mutations的结构，我们可以很轻松的实现事件发布，找到指定类型的事件队列，
-遍历这个队列，传入参数并执行。
+根据事件注册后this._mutations的结构，我们可以很轻松的实现事件发布，找到指定类型的事件队列，遍历这个队列，传入参数并执行。
 ```js
 // 触发对应type的mutation
   commit (_type, _payload, _options) {
@@ -422,10 +384,7 @@ registerAction (store, type, handler, local) {
     });
   }
 ```
-注册方法中包含四个参数，store代表store实例，type代表action类型，handler是action函数，local是
-当前module下的context。首先判断是否已存在该类型acion的事件队列，如果不存在则需要初始化为数组。然后
-将该事件推入指定类型的事件队列。需要注意的两点，第一，action函数访问到的第一个参数为一个context对象
-，第二，事件返回的值始终是一个promise。
+注册方法中包含四个参数，store代表store实例，type代表action类型，handler是action函数。首先判断是否已存在该类型acion的事件队列，如果不存在则需要初始化为数组。然后将该事件推入指定类型的事件队列。需要注意的两点，第一，action函数访问到的第一个参数为一个context对象，第二，事件返回的值始终是一个promise。
 
 #### 发布
 ```js
@@ -468,9 +427,7 @@ const store = new Vuex.Store({
 });
 
 ```
-首先我们在store中定义一个state，getters和mutations，其中state中包含一个count，初始值为1，
-getters中定义一个square，该值返回为count的平方，在mutations中定义一个add事件，当触发add时
-count会增加number。<br>
+首先我们在store中定义一个state，getters和mutations，其中state中包含一个count，初始值为1，getters中定义一个square，该值返回为count的平方，在mutations中定义一个add事件，当触发add时count会增加number。<br>
 接着我们在页面中使用这个store：
 ```vue
 <template>
@@ -507,9 +464,7 @@ count会增加number。<br>
 
 </style>
 ```
-执行的结果是，我们每次触发add事件时，state.count会相应增2,而getter始终时state.count的平方。
-这不由得让我们想起了vue中的响应式系统，data和computed之间的关系，貌似如出一辙，实际上vuex就是利用
-vue中的响应式系统实现的。
+执行的结果是，我们每次触发add事件时，state.count会相应增2,而getter始终时state.count的平方。这不由得让我们想起了vue中的响应式系统，data和computed之间的关系，貌似如出一辙，实际上vuex就是利用vue中的响应式系统实现的。
 
 ### getters的实现
 首先定义一个实例属性_wappedGetters用来存放getters
@@ -522,8 +477,7 @@ export class Store {
   }
 }
 ```
-在modules中定义一个遍历执行getters的实例方法，并在installModule时期注册getters，并将getters存放至_wrappedGetters属性中
-
+在modules中定义一个遍历执行getters的实例方法，并在installModule方法中注册getters，并将getters存放至_wrappedGetters属性中
 ```js
 installModule (store, state, path, module) {
     // ...
@@ -550,11 +504,8 @@ registerGetter (store, type, rawGetters, local) {
     };
   }
 ```
-需要注意的是，vuex中不能定义两个相同类型的getter，在注册时，我们将一个返回选项getters执行
-结果的函数，传入的参数为store实例，选项中的getters接受四个参数分别为作用域下和store实例中的state和getters
-关于local的问题在之后module原理的时候再做介绍，在此次的实现中local和store中的参数都是一致的。<br>
-之后我们需要将所有的getters在resetStoreVm时期注入computed，并且在访问getters中的某个属性时将其
-代理到store.vm中的相应属性
+需要注意的是，vuex中不能定义两个相同类型的getter，在注册时，我们将一个返回选项getters执行结果的函数，传入的参数为store实例，选项中的getters接受四个参数分别为作用域下和store实例中的state和getters关于local的问题在之后module原理的时候再做介绍，在此次的实现中local和store中的参数都是一致的。<br>
+之后我们需要将所有的getters在resetStoreVm时期注入computed，并且在访问getters中的某个属性时将其代理到store.vm中的相应属性
 ```js
 // 注册响应式实例
   resetStoreVm (store, state) {
@@ -577,8 +528,7 @@ registerGetter (store, type, rawGetters, local) {
     }
   }
 ```
-在resetStroreVm时期，遍历wrappedGetters，并将getters包装在一个具有相同key的computed中
-再将这个computed注入到store._vm实例中。
+在resetStroreVm时期，遍历wrappedGetters，并将getters包装在一个具有相同key的computed中再将这个computed注入到store._vm实例中。
 ```js
 resetStoreVm (store, state) {
     store.getters = {};
@@ -592,9 +542,7 @@ resetStoreVm (store, state) {
     // ...
   }
 ```
-然后将store.getters中的属性指向store._vm中对应的属性，也就是store.computed中对应的属性
-这样，当store._vm中data.$$state(store.state)发生变化时，引用state的getter也会实时计算
-以上就是getters能够响应式变化的原理
+然后将store.getters中的属性指向store._vm中对应的属性，也就是store.computed中对应的属性这样，当store._vm中data.$$state(store.state)发生变化时，引用state的getter也会实时计算以上就是getters能够响应式变化的原理
 具体代码见 https://github.com/miracle9312/source-mock/tree/b518d560152f80d0b441600b327ad7c4e1fe59de
 
 ## helpers原理
@@ -684,9 +632,7 @@ export const mapState = function (states) {
   return res;
 };
 ```
-首先看mapsState最终的返回值res是一个对象，传入的参数是我们想要map出来的几个属性，mapState可以传入一个
-字符串数组或者是对象数组，字符串数组中包含的是引用的属性，对象数组包含的是使用值与引用的映射，这两种
-形式的传参，我们需要通过normalizeMap进行规范化，统一返回一个对象数组
+首先看mapsState最终的返回值res是一个对象，传入的参数是我们想要map出来的几个属性，mapState可以传入一个字符串数组或者是对象数组，字符串数组中包含的是引用的属性，对象数组包含的是使用值与引用的映射，这两种形式的传参，我们需要通过normalizeMap进行规范化，统一返回一个对象数组
 ```js
 function normalizeMap (map) {
   return Array.isArray(map)
@@ -694,12 +640,8 @@ function normalizeMap (map) {
     : Object.keys(map).map(key => ({ key, val: map[key] }))
 }
 ```
-normalizeMap函数首先判断传入的值是否为数组，若是，则返回一个key和val都为数组元素的对象数组，如果不是数组，
-则判断传入值为一个对象，接着遍历该对象，返回一个以对象键值为key和val值的对象数组。此时通过normalizeMap之后
-的map都将是一个对象数组。<br>
-接着遍历规范化之后的数组，对返回值对象进行赋值，赋值函数执行后返回state对应key的值
-如果传入值为一个函数，则将getters和state作为参数传入并执行，最终返回该对象，这样在computed属性中展开后
-就能直接通过key来引用对应state的值了。<br>
+normalizeMap函数首先判断传入的值是否为数组，若是，则返回一个key和val都为数组元素的对象数组，如果不是数组，则判断传入值为一个对象，接着遍历该对象，返回一个以对象键值为key和val值的对象数组。此时通过normalizeMap之后的map都将是一个对象数组。<br>
+接着遍历规范化之后的数组，对返回值对象进行赋值，赋值函数执行后返回state对应key的值如果传入值为一个函数，则将getters和state作为参数传入并执行，最终返回该对象，这样在computed属性中展开后就能直接通过key来引用对应state的值了。<br>
 mapGetters与mapState的实现原理基本一致
 ```js
 export const mapGetters = function (getters) {
@@ -732,10 +674,7 @@ export const mapActions = function (actions) {
   return res;
 };
 ```
-mapActions执行后也将返回一个对象，对象的key用于组件中引用，对象中value为一个函数，该函数传参是dispatch执行
-时的payload，其中val如果不是一个函数，则判断其为actionType通过dispath(actionType,payload)来触发对应的action
-如果传入的参数为一个函数则将dispatch和payload作为参数传入并执行，这样可以实现在mapAction时组合调用多个action，或者
-自定义一些其他行为。最终返回该对象，在组件的methods属性中展开后，可以通过调用key对应的函数来触发action。<br>
+mapActions执行后也将返回一个对象，对象的key用于组件中引用，对象中value为一个函数，该函数传参是dispatch执行时的payload，其中val如果不是一个函数，则判断其为actionType通过dispath(actionType,payload)来触发对应的action如果传入的参数为一个函数则将dispatch和payload作为参数传入并执行，这样可以实现在mapAction时组合调用多个action，或者自定义一些其他行为。最终返回该对象，在组件的methods属性中展开后，可以通过调用key对应的函数来触发action。<br>
 mapMutation的实现原理与mapActions大同小异
 ```js
 export const mapMutations = function (mutations) {
@@ -756,8 +695,7 @@ export const mapMutations = function (mutations) {
 ```
 
 ## module
-为了方便进行store中不同功能的切分，在vuex中可以将不同功能组装成一个单独的模块，模块内部可以
-单独管理state，也可以访问到全局状态。
+为了方便进行store中不同功能的切分，在vuex中可以将不同功能组装成一个单独的模块，模块内部可以单独管理state，也可以访问到全局状态。
 ### 用法
 ```js
 // main.js
@@ -820,8 +758,7 @@ const store = new Vuex.Store({
 
 </style>
 ```
-上述代码中，我们定义了一个key为a的module，将其namespaced设置成了true，对于namespace=false的模块，它将自动继承
-父模块的命名空间。对于模块a，他有一下几点特性
+上述代码中，我们定义了一个key为a的module，将其namespaced设置成了true，对于namespace=false的模块，它将自动继承父模块的命名空间。对于模块a，他有以下几点特性
 - 拥有自己独立的state
 - getters和actions中能够访问到state,getters，rootState, rootGetters
 - mutations中只能改变模块中的state
@@ -913,16 +850,10 @@ export default class Module {
   }
 }
 ```
-实例化时首先会执行register函数，在register函数中根据传入的rawModule创建一个Module的实例
-然后根据注册的路径判断是否为根模块，如果是，则将该module实例挂载在root属性上，如果不是则通过get方法
-找到该模块的父模块，将其通过模块的addChild方法挂载在父模块的_children属性上，最后判断该模块是否
-含有嵌套模块，如果有则遍历嵌套模块，递归执行register方法，这样就能构造如上图所示的嵌套模块结构了。
-有了以上这样的结构，我们可以用reduce方法通过path来获取指定路径下的模块，也可以用递归的方式对所有的
-模块进行统一的操作，大大方便了模块的管理。
+实例化时首先会执行register函数，在register函数中根据传入的rawModule创建一个Module的实例然后根据注册的路径判断是否为根模块，如果是，则将该module实例挂载在root属性上，如果不是则通过get方法找到该模块的父模块，将其通过模块的addChild方法挂载在父模块的_children属性上，最后判断该模块是否含有嵌套模块，如果有则遍历嵌套模块，递归执行register方法，这样就能构造如上图所示的嵌套模块结构了。有了以上这样的结构，我们可以用reduce方法通过path来获取指定路径下的模块，也可以用递归的方式对所有的模块进行统一的操作，大大方便了模块的管理。
 
 ### 构造localContext
-有了基本的模块结构后，下面的问题就是如何进行模块作用域的封装了，让每个模块有自己的state并且对于这个state
-有自己管理这个state的方法，并且我们希望这些方法也能够访问到全局的一些属性。<br>
+有了基本的模块结构后，下面的问题就是如何进行模块作用域的封装了，让每个模块有自己的state并且对于这个state有自己管理这个state的方法，并且我们希望这些方法也能够访问到全局的一些属性。<br>
 总结一下现在我们要做的事情，
 ```js
 // module
@@ -957,9 +888,7 @@ export default class Module {
 }
 ```
 
-在namespaced=true的模块中，访问到的state,getters都是自模块内部的state和getters,只有rootState,以及rootGetters指向
-根模块的state和getters；另外，在模块中commit触发的都是子模块内部的mutations，dispatch触发的都是子模块内部的actions。
-在vuex中通过路径匹配去实现这种封装。
+在namespaced=true的模块中，访问到的state,getters都是自模块内部的state和getters,只有rootState,以及rootGetters指向根模块的state和getters；另外，在模块中commit触发的都是子模块内部的mutations，dispatch触发的都是子模块内部的actions。在vuex中通过路径匹配去实现这种封装。
 ```js
 //state
 {
@@ -990,9 +919,7 @@ export default class Module {
   "n1/n2/a": function () {}
 }
 ```
-vuex中要构造这样一种数据结构，去存储各个数据项，然后将context中的commit方法重写，将commit(type)代理至namespaceType以实现commit方法的封装，类似的dispatch也是通过这种方式进行封装，
-而getters则是实现了一个getterProxy,将key代理至store.getters[namespace+key]上，然后在context中的getters替换成该getterProxy，
-而state则是利用了以上这种数据结构，直接找到对应path的state赋给context.state，这样通过context访问到的都是模块内部的数据了。<br>
+vuex中要构造这样一种数据结构，去存储各个数据项，然后将context中的commit方法重写，将commit(type)代理至namespaceType以实现commit方法的封装，类似的dispatch也是通过这种方式进行封装，而getters则是实现了一个getterProxy,将key代理至store.getters[namespace+key]上，然后在context中的getters替换成该getterProxy，而state则是利用了以上这种数据结构，直接找到对应path的state赋给context.state，这样通过context访问到的都是模块内部的数据了。<br>
 接着来看看代码实现
 ```js
 installModule (store, state, path, module, hot) {
@@ -1057,8 +984,7 @@ installModule (store, state, path, module, hot) {
     });
   }
 ```
-getters，mutations，actions的构造有着几乎一样的方式，只不过分别挂载在store._getters,store._mutations,stors._actions上而已，
-因此我们值分析mutations的构造过程。首先是forEachMutation遍历module中的mutations对象，然后通过ergisterMustions注册到以namespace+key的
+getters，mutations，actions的构造有着几乎一样的方式，只不过分别挂载在store._getters,store._mutations,stors._actions上而已，因此我们值分析mutations的构造过程。首先是forEachMutation遍历module中的mutations对象，然后通过ergisterMustions注册到以namespace+key的
 key上
 ```js
 function registerMutation (store, type, handler, local) {
@@ -1109,9 +1035,7 @@ function makeLocalContext (store, namespace, path) {
   return local;
 }
 ```
-首先看context中的commit和dispatch方法的实现两者实现方式大同小异，我们只分析commit，首先通过namespace判断是否为封装模块，如果是
-则返回一个匿名函数，该匿名函数首先进行参数的规范化，之后会调用store.dispatch，而此时的调用会将传入的type进行偷换
-换成namespace+type，所以我们在封装的module中执行的commit[type]实际上都是调用store._mutations[namespace+type]的事件队列<br>
+首先看context中的commit和dispatch方法的实现两者实现方式大同小异，我们只分析commit，首先通过namespace判断是否为封装模块，如果是则返回一个匿名函数，该匿名函数首先进行参数的规范化，之后会调用store.dispatch，而此时的调用会将传入的type进行偷换换成namespace+type，所以我们在封装的module中执行的commit[type]实际上都是调用store._mutations[namespace+type]的事件队列<br>
 ```js
 function makeLocalContext (store, namespace, path) {
   const noNamespace = namespace === "";
@@ -1129,8 +1053,7 @@ function makeLocalContext (store, namespace, path) {
   return local;
 }
 ```
-然后是state，通过local.state访问到的都是将path传入getNestedState获取到的state,实际上就是module内的state,
-而getters则是通过代理的方式实现访问内部getters的
+然后是state，通过local.state访问到的都是将path传入getNestedState获取到的state,实际上就是module内的state,而getters则是通过代理的方式实现访问内部getters的
 ```js
 function makeLocalGetters (store, namespace) {
   const gettersProxy = {}
