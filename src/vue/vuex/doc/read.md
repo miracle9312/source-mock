@@ -994,11 +994,182 @@ export default class Module {
   "n1/n2/a": function () {}
 }
 ```
-获取路径对应的命名空间（namespaced=true时拼上）->存至_moduleNamespaceMap->state拼接到store.state上使其成为一个基于path的嵌套结构->注册localContext
+vuex中要构造这样一种数据结构，去存储各个数据项，然后将context中的commit方法重写，将commit(type)代理至namespaceType以实现commit方法的封装，类似的dispatch也是通过这种方式进行封装，
+而getters则是实现了一个getterProxy,将key代理至store.getters[namespace+key]上，然后在context中的getters替换成该getterProxy，
+而state则是利用了以上这种数据结构，直接找到对应path的state赋给context.state，这样通过context访问到的都是模块内部的数据了。<br>
+接着来看看代码实现
+```js
+installModule (store, state, path, module, hot) {
+    const isRoot = !path.length;
+    // 获取namespace
+    const namespace = store._modules.getNamespace(path);
+  }
+```
+所有数据项的构造，以及context的构造都在store.js的installModule方法中，首先通过传入的path获取namespace
+```js
+ // 根据路径返回namespace
+  getNamespace (path) {
+    let module = this.root;
+
+    return path.reduce((namespace, key) => {
+      module = module.getChild(key);
+
+      return namespace + (module.namespaced ? `${key}/` : "");
+    }, "");
+  }
+```
+获取namespace的方法是ModuleCollections的一个实例方法，它会逐层访问modules,判断namespaced属性，若为true则将path[index]拼在namespace上
+这样就获得了完整的namespace<br>
+之后是嵌套结构state的实现
+```js
+installModule (store, state, path, module, hot) {
+    // 构造嵌套state
+    if (!isRoot && !hot) {
+      const moduleName = path[path.length - 1];
+      const parentState = getNestedState(state, path.slice(0, -1));
+      Vue.set(parentState, moduleName, module.state);
+    }
+  }
+```
+首先根据出path获取state上对应的parentState,此处入参state就是store.state
+```js
+function getNestedState (state, path) {
+  return path.length
+    ? path.reduce((state, key) => state[key], state)
+    : state
+}
+```
+其中的getNestState，用于根据路径获取相应的state,在获取parentState之后，将module.state挂载在parentState[moduleName]上。
+这样就构造了一个如上说所述的嵌套state结构。<br>
+在得到namespace之后我们需要将传入的getters，mutations，actions根据namespace去构造了
+```js
+installModule (store, state, path, module, hot) {
+    module.forEachMutation((mutation, key) => {
+      const namespacdType = namespace + key;
+      this.registerMutation(store, namespacdType, mutation, local);
+    });
+
+    module.forEachAction((action, key) => {
+      const type = action.root ? type : namespace + key;
+      const handler = action.handler || action;
+      this.registerAction(store, type, handler, local);
+    });
+
+    module.forEachGetters((getter, key) => {
+      const namespacedType = namespace + key
+      this.registerGetter(store, namespacedType, getter, local);
+    });
+  }
+```
+getters，mutations，actions的构造有着几乎一样的方式，只不过分别挂载在store._getters,store._mutations,stors._actions上而已，
+因此我们值分析mutations的构造过程。首先是forEachMutation遍历module中的mutations对象，然后通过ergisterMustions注册到以namespace+key的
+key上
+```js
+function registerMutation (store, type, handler, local) {
+  const entry = store._mutations[type] || (store._mutations[type] = [])
+  entry.push(function wrappedMutationHandler (payload) {
+    handler.call(store, local.state, payload)// mutation中第一个参数是state，第二个参数是payload
+  })
+}
+```
+实际上会存放在store._mutations[namespace+key]上。<br>
+通过上述操作，我们已经完成了封装的一半，接下来我们还要为每个module实现一个context，在这个context里面有state，getters,commit和actions，
+但是这里的state,getters只能访问module里面的state和getters，而commit和actions也只能触达到module内部的state和getters
+```js
+installModule (store, state, path, module, hot) {
+    // 注册mutation事件队列
+    const local = module.context = makeLocalContext(store, namespace, path);
+  }
+```
+我们会在installModule里面去实现这个context,然后将组装完的context分别赋给local和module.context，
+而这个local在会在register的时候传递给getters,mutations, actions作为参数
+```js
+function makeLocalContext (store, namespace, path) {
+  const noNamespace = namespace === "";
+  const local = {
+    dispatch: noNamespace
+      ? store.dispatch
+      : (_type, _payload, _options) => {
+        const args = unifyObjectStyle(_type, _payload, _options);
+        let { type } = args;
+        const { payload, options } = args;
+        if (!options || !options.root) {
+          type = namespace + type;
+        }
+        store.dispatch(type, payload, options);
+      },
+    commit: noNamespace
+      ? store.commit
+      : (_type, _payload, _options) => {
+        const args = unifyObjectStyle(_type, _payload, _options);
+        let { type } = args;
+        const { payload, options } = args;
+        if (!options || !options.root) {
+          type = namespace + type;
+        }
+        store.commit(type, payload, options);
+      }
+  };
+  return local;
+}
+```
+首先看context中的commit和dispatch方法的实现两者实现方式大同小异，我们只分析commit，首先通过namespace判断是否为封装模块，如果是
+则返回一个匿名函数，该匿名函数首先进行参数的规范化，之后会调用store.dispatch，而此时的调用会将传入的type进行偷换
+换成namespace+type，所以我们在封装的module中执行的commit[type]实际上都是调用store._mutations[namespace+type]的事件队列<br>
+```js
+function makeLocalContext (store, namespace, path) {
+  const noNamespace = namespace === "";
+  Object.defineProperties(local, {
+    state: {
+      get: () => getNestedState(store.state, path)
+    },
+    getters: {
+      get: noNamespace
+        ? () => store.getters
+        : () => makeLocalGetters(store, namespace)
+    }
+  });
+
+  return local;
+}
+```
+然后是state，通过local.state访问到的都是将path传入getNestedState获取到的state,实际上就是module内的state,
+而getters则是通过代理的方式实现访问内部getters的
+```js
+function makeLocalGetters (store, namespace) {
+  const gettersProxy = {}
+
+  const splitPos = namespace.length
+  Object.keys(store.getters).forEach(type => {
+    // skip if the target getter is not match this namespace
+    if (type.slice(0, splitPos) !== namespace) return
+
+    // extract local getter type
+    const localType = type.slice(splitPos)
+
+    // Add a port to the getters proxy.
+    // Define as getter property because
+    // we do not want to evaluate the getters in this time.
+    Object.defineProperty(gettersProxy, localType, {
+      get: () => store.getters[type],
+      enumerable: true
+    })
+  })
+
+  return gettersProxy
+}
+```
+首先声明一个代理对象gettersProxy，之后遍历store.getters，判断是否为namespace的路径全匹配，如果是，则将gettersProxy
+的localType属性代理至store.getters[type]，然后将gettersProxy返回，这样通过local.getters访问的localType实际上
+就是stores.getters[namespace+type]了。
+以下是一个小小的总结<br>
+获取路径对应的命名空间（namespaced=true时拼上）->state拼接到store.state上使其成为一个基于path的嵌套结构->注册localContext<br>
 注册localContext
 * Dispatch:namespace->扁平化参数->无root条件直接触发namespace+type->有root或hot条件，触发type
 * commit->扁平化参数->无root条件直接触发namespace+type->有root或hot条件，触发type
 * State:根据path查找state
 * Getters:声明代理对象，遍历store.getters对象，匹配key和namespace,命中后将其localType指向全路径
+
+
 
 

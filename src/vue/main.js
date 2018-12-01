@@ -35,8 +35,15 @@ const store = new Vuex.Store({
       namespaced: true,
       state: { countA: 9 },
       getters: {
-        sqrt (state) {
-          return Math.sqrt(state.countA);
+        g1 (state) {
+          // ...
+        },
+        g2 (state) {
+          // ...
+        },
+        // ...
+        gn (state) {
+          // ...
         }
       },
       mutations: {

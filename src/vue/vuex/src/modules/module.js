@@ -4,7 +4,7 @@ export default class Module {
   constructor (rawModule, runtime) {
     const rawState = rawModule.state;
 
-    this.runtime = runtime;// 1.todo:runtime的作用是啥
+    this.runtime = runtime;
     this._rawModule = rawModule;
     this._children = Object.create(null);
     // 此处state可以为函数，主要用于多个模块同时引用一个state时，防止数据污染
