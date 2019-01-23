@@ -30,7 +30,7 @@
     return resData;
   };
   export default {
-    name: "TableSelector",
+    name: "CustomTableSelector",
     data () {
       return {
         tableData: initTableData()
@@ -50,7 +50,7 @@
       },
       confirmTableArea (rowNum, colNum) {
         this.tableData = initTableData();
-        console.log(rowNum, colNum);
+        this.$emit("create", { rowNum, colNum });
       }
     }
   };
