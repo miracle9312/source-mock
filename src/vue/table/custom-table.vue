@@ -17,6 +17,7 @@
                         @mousedown="setStartPoint(rowNum, colNum, item)"
                         @mouseup="setEndPoint(rowNum, colNum, item)"
                         @mousemove="setSelectArea(rowNum, colNum, item)"
+                        :style="{'background-color': item.cellStyle && item.cellStyle.color}"
                 >
                     <div v-html="item.content"></div>
                 </td>
@@ -30,12 +31,13 @@
         <button @click="insertItem('afterRow')">后面插入行</button>
         <button @click="deleteCol">删除列</button>
         <button @click="deleteRow">删除行</button>
+        <button @click="setCellStyle({color: '#eb5533'})">设置颜色</button>
     </div>
 </template>
 
 <script>
-  import shortid from "shortid";
   import cloneDeep from "clone-deep";
+  import shortid from "shortid";
 
   const initTableData = function (row, col) {
     const resData = [];
@@ -215,6 +217,20 @@
               this.mergeArea.splice(i, 1);
             }
           }
+        });
+      },
+      setCellStyle (styleObj) {
+        const that = this;
+        this.tableData.forEach((row, i) => {
+          row.forEach((col, j) => {
+            const inRowSide = i >= Math.min(that.startPoint[0], that.endPoint[0]) &&
+              i <= Math.max(that.startPoint[0], that.endPoint[0]);
+            const inColSide = j >= Math.min(that.startPoint[1], that.endPoint[1]) &&
+              j <= Math.max(that.startPoint[1], that.endPoint[1]);
+            if (inRowSide && inColSide) {
+              that.$set(that.tableData[i][j], "cellStyle", styleObj);
+            }
+          });
         });
       }
     }

@@ -13,3 +13,5 @@
 
 ## javasript设计模式
 - [js pattern](https://github.com/miracle9312/source-mock/blob/master/src/basic/js-pattern.md)
+## 深入浅出nodejs精读
+- [异步i/o]()
