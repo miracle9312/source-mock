@@ -23,7 +23,7 @@
         "callback-return": "error",
         "camelcase": "error",
         "capitalized-comments": [
-            "error",
+            "warn",
             "always"
         ],
         "class-methods-use-this": "warn",
@@ -56,7 +56,7 @@
         "id-match": "error",
 //        "implicit-arrow-linebreak": "error",
         "indent-legacy": ["error", 2],
-        "init-declarations": "error",
+        "init-declarations": "warn",
         "jsx-quotes": "error",
         "key-spacing": "error",
         "keyword-spacing": "error",
@@ -74,7 +74,7 @@
         "max-params": "warn",
         "max-statements": "warn",
         "max-statements-per-line": "error",
-        "multiline-comment-style": "error",
+        "multiline-comment-style": "warn",
         "multiline-ternary": "warn",
         "new-cap": "error",
         "new-parens": "error",
