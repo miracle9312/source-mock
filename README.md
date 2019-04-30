@@ -14,4 +14,7 @@
 ## javasript设计模式
 - [js pattern](https://github.com/miracle9312/source-mock/blob/master/src/basic/js-pattern.md)
 ## 深入浅出nodejs精读
-- [异步i/o]()
+- [异步i/o](https://github.com/miracle9312/source-mock/blob/master/src/nodejs/async-io.md)
+- [异步编程](https://github.com/miracle9312/source-mock/blob/master/src/nodejs/async-code.md)
+- [内存控制](https://github.com/miracle9312/source-mock/blob/master/src/nodejs/ram-control.md)
+- [buffer](https://github.com/miracle9312/source-mock/blob/master/src/nodejs/buffer.md)
