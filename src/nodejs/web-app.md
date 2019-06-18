@@ -13,3 +13,19 @@
 ### 相关链接
 - CSRF 攻击的应对之道：https://www.ibm.com/developerworks/cn/web/1102_niugang_csrf/index.html
 - 浅谈CSRF攻击方式：https://www.cnblogs.com/hyddd/archive/2009/04/09/1432744.html
+
+
+## 路由映射
+### 手工映射
+- 原理：use(pathRegExp, controller)，将路由信息和控制器写入配置文件形成关联，请求进入时通过
+解析路径，执行相应的控制器。
+- 参数：/path1/path2/:param形式的路径解析，访问路径形如path1/path2/xxx时，将xxx通过正则获取，赋值到
+req.params.param上，作为后续控制器调用时的参数
+
+### 自动映射
+- 原理：约定一个固定的路由格式：/controller/action/param1/param2/param3，按约定找controller目录下的user
+文件，将其require出来后调用action，其余作为参数传入
+
+### Restful
+- 作用：在路由中体现对资源的操作
+- 实现：在路由映射中包含请求操作的条件，同一路由如果请求方法不同，将可能调用不同的控制器
