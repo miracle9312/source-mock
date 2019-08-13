@@ -1,3 +1,18 @@
+## 开局只有四行代码
+```js
+http.createServer(function(req, res) {
+  res.writeHead(200, {'Content-Type': 'text/plain'});
+  res.end('Hello World');
+}).listen(1337, '127.0.0.1')
+```
+## 请求方法判断
+restful类的web服务，请求方法决定资源的操作行为，PUT->新建，POST->更新，GET->查看，DELETE->删除
+什么是restful https://juejin.im/entry/59f5f8cbf265da4327177e08
+用一个买咖啡的例子进行描述
+level0:面向前台，将所有操作及操作内容都通过统一的入口去处理
+level1:面向资源，将所有操作需要更改的资源进行分类，不同类别的资源有各自的增删改查操作，所有的处理都直接面向资源
+level2:面向操作，对相应资源的操作进行分类，所有请求都先分好操作类型，PUT->新建，POST->更新，GET->查看，DELETE->删除，一个行为对应一种控制器
+level3:完美服务，
 ## csrf（跨站点请求伪造）攻击原理及防范措施
 ### 攻击原理
 受攻击网站某银行网站a,在用户tom提交转账时的接口为a.example.com/?from=tom&count=100,
