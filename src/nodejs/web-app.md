@@ -53,6 +53,80 @@ var parseCookie = function (cookie) {
 ```
     中间件将其解析后存放在req.cookies上
 - 服务端如何将cookie写到响应头
+## session
+- 为什么需要session:cookie是可以前端进行访问和改写的，需要将重要的数据放在服务端进行保存，cookie只保存索引，通过索引从服务端获取数据
+- 什么是session:是在服务端保存的一个数据结构，用来跟踪用户的状态
+- 原理解析：如何用session保存用户登录状态
+<img style="margin: auto;display: block;" src="../assets/session.png" width="500px" height="250px"/>
+- session的在node的实现
+    - session最终的数据格式
+    ```json
+    {  
+      "id1": {
+        "expires": "xxxx",
+        "data": {}
+      },
+      "id2": {
+        "expires": "xxxx",
+         "data": {}
+      }
+    }
+    ```
+    - 生成sessionId
+    ```js
+    var sessions = {};
+    var key = 'session_id';
+    var EXPIRES = 20 * 60 * 1000;
+    var generate = function() {  
+      var session = {};
+      var id = (new Date()).getTime() + Math.random();
+      session = {
+        expires: (new Date()).getTime() + EXPIRES;
+      };
+      sessions[id] = session;  
+      return session;
+    }
+    ```
+    - cookie口令校验及session生成
+    ```js
+    function (req, res) {
+      const id = req.cookie["session_id"];
+    
+      if(id) {
+        const session = sessions[id];
+        if(session.cookie.expire > (new Date()).getTime()) {//未超时
+          // 更新过期时间
+          session.cookie.expire = (new Date()).getTime() + EXPIRE_TIME;
+          // 设置session
+          res.session = session;
+        }else {// 超时
+          delete sessions[id];
+          res.session = session;
+        }
+      }else {
+        res.session = generate();
+      }
+      handle(req, res);
+    }
+    ```
+    - 根据cookie获取用户状态并返回相应值
+    ```js
+    var handle = function (req, res) { 
+      if (!req.session.isVisit) {
+        res.session.isVisit = true; 
+        res.writeHead(200); res.end('欢迎第一次来到动物园');
+      } else {
+        res.writeHead(200); res.end('动物园再次欢迎你');
+      }  
+    };
+    ```
+- session与内存
+    - 避免内存泄露，以及控制内存
+    - 多进程之间的数据保存：统一的数据存储redis
+- session安全：通过私钥对sessionId进行加密，避免id伪造，造成身份伪造
+## xss（跨站脚本攻击）攻击
+- 原理：通过在第三方网站执行注入的脚本，盗取用户的session口令，进而伪造用户身份
+
 ## csrf（跨站点请求伪造）攻击原理及防范措施
 ### 攻击原理
 受攻击网站某银行网站a,在用户tom提交转账时的接口为a.example.com/?from=tom&count=100,
@@ -69,6 +143,18 @@ var parseCookie = function (cookie) {
 - CSRF 攻击的应对之道：https://www.ibm.com/developerworks/cn/web/1102_niugang_csrf/index.html
 - 浅谈CSRF攻击方式：https://www.cnblogs.com/hyddd/archive/2009/04/09/1432744.html
 
+## 缓存
+### 四种常用的缓存机制
+- If-Modified-since:根据文件最终修改事件进行缓存
+    - 文件时间戳改动，但内容不一定改动
+    - 只能精确到秒级
+- Etag:根据文件内容生成散列值
+- Expires:设置文件过期时间，该期间内都会从浏览器拿缓存文件，不会请求服务端
+    - 可能出现服务端时间和浏览器时间不一致的情况
+- Cache-Control:设置文件过期时长
+前两种都需要发动请求到服务端，后两种直接从浏览器获取缓存文件效率更高
+### 清除缓存
+通过给资源链接加版本号，可以直接获取最新资源
 
 ## 路由映射
 ### 手工映射
