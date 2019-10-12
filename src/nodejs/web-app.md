@@ -5,6 +5,10 @@ http.createServer(function(req, res) {
   res.end('Hello World');
 }).listen(1337, '127.0.0.1')
 ```
+
+## 浏览器报文
+<img style="margin: auto;display: block;" src="../assets/http.jpg" width="500px" height="250px"/>
+
 ## 请求方法判断
 restful类的web服务，请求方法决定资源的操作行为，PUT->新建，POST->更新，GET->查看，DELETE->删除
 什么是restful https://juejin.im/entry/59f5f8cbf265da4327177e08
