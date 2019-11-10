@@ -1,20 +1,28 @@
 {
   "name": "webpack-test",
   "version": "1.0.0",
-  "description": "",
   "main": "index.js",
   "directories": {
     "doc": "docs"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "miasm-prefix-loader": "file:src/loaders/miasm-prefix-loader",
     "webpack": "^4.40.2"
   },
   "devDependencies": {
-    "webpack-cli": "^3.3.9"
-  }
+    "css-loader": "^3.2.0",
+    "node-sass": "^4.13.0",
+    "sass-loader": "^8.0.0",
+    "style-loader": "^1.0.0",
+    "webpack-cli": "^3.3.9",
+    "webpack-dev-server": "^3.9.0"
+  },
+  "keywords": [],
+  "description": ""
 }
