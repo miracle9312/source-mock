@@ -87,7 +87,91 @@ input可能是工程源文件的字符串，也可能是上一个loader转化后
 原理上实际就是编写一个文件处理的函数，输入和输出都是确定的，比较简单，这里有我实现的一个在打包文件前统一加描述的简单loader
 [misasm-prefix-loader](https://github.com/miracle9312/source-mock/tree/master/src/webpack/src/loaders/miasm-prefix-loader)
 
-### 未完待续
+### 样式处理
+
+- style-loader和css-loader对样式进行处理：如果对css样式仅进行style-loader和css-loader的处理
+将不会生成单独的css文件，而是通过js将样式注入到style标签中然后挂载在页面头部，这也是我们看到很多组件只打包了js文件也能渲染样式的原因，
+但是浏览器不会对style标签内的内容进行缓存，所以对于大型项目来说，这种方式对于页面加载的性能非常不利；
+- extract-text-webpack-plugin:该插件可以将css样式抽离成单独的文件，并且可以支持多样式文件的处理，但是这种打包不能做到按需加载，比如说在一个
+js文件中有对其他样式的引用，那所有的样式会在js执行之前便会被打包到bundle.css中，但是在当前页加载时这部分资源并没有被用到；
+- mini-css-extract-plugin: 该插件可以实现按需加载css,被动态依赖的css资源将会被打包成单独的资源，并通过js动态插入link标签的方式加载
+- 样式预处理：通过sass，scss和less可以实现更丰富且强大的css写法
+- post-css：搭配post-css会让autoprefixer实现针对环境进行定制化的css代码构建
+- css-modules: 当css被放置在不同文件中维护，或者css样式内容变得非常庞大时，极有可能会出现样式冲突的情况，css-modules便是针对这个情况通过文件名，样式名，hash值生成
+唯一的类名，解决命名冲突，只需要在css-loaders中将options.module设置为true即可
+
+### 代码分片
+
+代码分片的目的可以简单理解为将公用模块抽离，打包成单独的文件，这样针对业务代码的变更不会影响到公用模块的加载，提升页面资源加载的性能；
+书中介绍了CommonsChunkPlugin插件和optimization.SplitChunks配置两种方案
+
+#### 最初的分离方案
+
+```
+// webpack.config.js
+{
+  entry: {
+    app: './app.js',
+    lib: ['lib-a', 'lib-b', 'lib-c']
+  }
+};
+
+//index.html
+<script src="dist/lib.js"></script>
+<script src="dist/app.js></script>
+```
+简单的将公用模块和业务模块打成两个bundle，这导致两个模块不在一个依赖树上，仅适用于公用模块注册在全局变量的场景
+
+#### CommonsChunkPlugin
+
+```
+const webpack = require('webpack');
+
+module.exports = {
+  entry: {
+    foo: './foo.js',
+    bar: './bar.js'
+  },
+  output: {
+    filename: '[name].js'
+  },
+  plugin: [
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'commons',
+      filename: 'common.js'
+    })
+  ]
+};
+```
+- 目的：可以将公用模块抽离在common.js中，并且业务模块和公用模块在统一依赖树上
+- 设置提取规则：对于一些组件和工具模块，虽然多次引用，但是会经常修改，这些并不能作为公用模块进行处理，所以需要对
+提取的规则进行设置，CommonsChunkPlugin可以支持根据引用次数和引用路径对文件进行识别，进而实现定制化的提取
+- hash和长效缓存：webpack在进行打包是，运行时的代码（诸如模块id，环境代码等）也将会打包进公用模块，但是这部分代码
+在业务代码变更时，也会造成公用模块中的代码变更，比如在业务代码中添加一个模块后，公用模块的模块id也会受到影响，所以此时可以
+通过配置manifest实现webpack运行时代码的抽离
+- 缺陷：CommonsChunkPlugin不能进行异步加载模块的提取
+
+#### optimization.SplitChunk
+
+利用optimization.SplitChunk可以实现异步加载模块的提取，而且这种配置是声明式的，相比与CommonsChunkPlugin命令式的配置更加强大（
+我的理解：命令式是明确的指定了文件的名字或者路径，而声明式是制定了一系列规则，符合规则的将被提取）
+optimization.SplitChunk可以支持的配置
+- 指定文件大小，设置文件下限，超过该体积的文件才能够被提取为公用模块
+- 指定应用次数，超过一定次数的模块才能被提取
+- 首页请求并发次数
+- 按需加载并发次数（异步加载的资源会通过script标签的方式异步加载，每次链接创建都要消耗加载的成本，所以需要针对这个做上限设置）
+
+### 打包优化
+
+- 多线程打包HappyPack: 可以开启多个线程，并行地对不同模块进行转译
+- 缩小打包作用域：
+    - exclude和include：过滤打包文件
+    - noParse:会将模块打入包中，但不会进行任何处理
+    - cache: 配置loader缓存，编译前会检查原文件是否有变化，没有会直接采用缓存
+    
+    tree-shaking: 死代码检查，去除永远无法执行的代码
+
+
 后面还有样式处理，代码分片，生产环境配置，打包优化，开发环境调优的介绍
 
 ### 关于性能优化和一些开发技巧

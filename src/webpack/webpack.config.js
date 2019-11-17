@@ -27,3 +27,25 @@ module.exports = {
     port: 3000
   }
 };
+
+const webpack = require('webpack');
+
+module.exports = {
+  entry: {
+    foo: './foo.js',
+    bar: './bar.js'
+  },
+  output: {
+    filename: '[name].js'
+  },
+  plugin: [
+    new webpack.optimize.CommonsChunkPlugin({
+      name: 'commons',
+      filename: 'common.js'
+    })
+  ]
+};
+
+//index.html
+<script src="dist/lib.js"></script>
+<script src="dist/app.js></script>
