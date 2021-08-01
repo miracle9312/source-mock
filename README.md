@@ -8,14 +8,17 @@
 
 ## vuex源码分析
 - [vuex](https://github.com/miracle9312/source-mock/blob/master/src/vue/vuex/doc/read.md)
-- 什么是vuex
-- 为什么需要vuex
-- install方法解析
-- 如何实现一个简单的commit
-- action和dispatch原理
-- getters原理
-- helpers原理
-- 实现module
+    - 什么是vuex(
+    - 为什么需要vuex
+    - install方法解析
+    - 如何实现一个简单的commit
+    - action和dispatch原理
+    - getters原理
+    - helpers原理
+    - 实现module
+
+## webpack最佳实战
+
 
 
 ## 如何实现一个渲染引擎
