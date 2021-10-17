@@ -1,0 +1,22 @@
+{
+  "name": "ssr-demo",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "server": "node src/server.js",
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build",
+    "build:server": "cross-env WEBPACK_TARGET=node vue-cli-service build --mode server"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "vue-server-renderer": "^2.6.14",
+    "vuex": "^3.6.2"
+  },
+  "devDependencies": {
+    "webpack-node-externals": "^3.0.0"
+  }
+}

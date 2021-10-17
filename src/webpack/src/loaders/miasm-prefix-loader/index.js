@@ -8,7 +8,7 @@ module.exports = function (content, sourceMap) {
     this.cacheable();
   }
   var options = loaderUtils.getOptions(this) || [];
-  var MIASM_PREFIX = "\/*hello miracle awesome project*\/\n\n";
+  var MIASM_PREFIX = "\/*hello shaoxuezheng awesome project*\/\n\n";
   console.log(sourceMap, "====sourceMap======");
   if(options.sourceMap && sourceMap) {
     console.log(options, "====here======");
