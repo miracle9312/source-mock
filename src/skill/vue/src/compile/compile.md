@@ -199,3 +199,67 @@ function parseHtml(html, options) {
 - 在解析到开始标签时将标签压入栈
 - 在解析到结束标签时将结束标签与栈中的标签对比，找到match的index
 - 从该位置往栈尾遍历，如果存在其他标签，说明这个标签没有闭合
+
+### optimize
+标记静态节点
+理解静态节点和动态节点： 动态节点指标签上包含if，for等指令等节点，会根据条件动态渲染
+
+```js
+function markStatic (node) {
+  node.static = isStatic(node)
+ 
+    for (let i = 0, l = node.children.length; i < l; i++) {
+      const child = node.children[i]
+      markStatic(child)
+      if (!child.static) {
+        node.static = false
+      }
+    }
+}
+
+function isStatic () {
+  return !!(node.pre || (
+    !node.hasBindings && // no dynamic bindings
+    !node.if && !node.for && // not v-if or v-for or v-else
+    !isBuiltInTag(node.tag) && // not a built-in
+    isPlatformReservedTag(node.tag) && // not a component
+    !isDirectChildOfTemplateFor(node) &&
+    Object.keys(node).every(isStaticKey)
+  ))
+}
+```
+标记根节点
+根节点：除了本身是一个静态节点外，必须满足拥有 children，并且 children 不能只是一个文本节点
+
+### codegen
+
+ast生成code
+template
+```js
+<ul :class="bindCls" class="list" v-if="isShow">
+    <li v-for="(item,index) in data" @click="clickItem(index)">{{item}}:{{index}}</li>
+</ul>
+```
+render函数h
+```js
+with(this){
+  return (isShow) ?
+    _c('ul', {
+        staticClass: "list",
+        class: bindCls
+      },
+      _l((data), function(item, index) {
+        return _c('li', {
+          on: {
+            "click": function($event) {
+              clickItem(index)
+            }
+          }
+        },
+        [_v(_s(item) + ":" + _s(index))])
+      })
+    ) : _e()
+}
+```
+
+
